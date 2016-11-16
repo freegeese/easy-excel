@@ -149,7 +149,7 @@ public class StandardReader {
 
             // limit
             if (keyDataMap.containsKey(OperationKey.LIMIT)) {
-                String[] startWithSize = keyDataMap.get(OperationKey.LIMIT).split(",");
+                String[] startWithSize = keyDataMap.get(OperationKey.LIMIT).replaceAll("\\s+","").split(",");
                 table.setStartRow(Integer.valueOf(startWithSize[0]));
                 if (startWithSize.length > 1) {
                     table.setRowSize(Integer.valueOf(startWithSize[1]));

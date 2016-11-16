@@ -58,6 +58,7 @@ public class ExcelSupport implements ExcelOperation {
     @Override
     public void writeExcel(Workbook workbook, ExcelConfig config) {
         Collection<SheetConfig> sheetConfigList = config.getSheetConfigs();
+        boolean notTemplate = (null == config.getTemplate());
         for (SheetConfig sheetConfig : sheetConfigList) {
             Sheet sheet;
             // 根据配置的名称获取sheet
@@ -76,7 +77,7 @@ public class ExcelSupport implements ExcelOperation {
             Integer sheetIndex = sheetConfig.getSheetIndex();
             if (null != sheetIndex) {
                 // 未指定模板，根据指定的下标新创建一个sheet
-                if (workbook.getNumberOfSheets() == 0) {
+                if (notTemplate) {
                     sheet = workbook.createSheet(String.valueOf(sheetIndex));
                     writeSheet(sheet, sheetConfig);
                     continue;
@@ -95,7 +96,7 @@ public class ExcelSupport implements ExcelOperation {
             }
 
             // 未指定名称和下标，并且是新创建的Workbook
-            if (workbook.getNumberOfSheets() == 0) {
+            if (notTemplate) {
                 sheet = workbook.createSheet();
                 writeSheet(sheet, sheetConfig);
                 continue;
