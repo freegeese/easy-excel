@@ -5,8 +5,41 @@
     <artifactId>easy-excel</artifactId>
     <version>0.0.1</version>
     <packaging>jar</packaging>
-    <name>java Maven Webapp</name>
-    <url>http://maven.apache.org</url>
+    <name>Easy Excel</name>
+    <url>https://git.oschina.net/geese/easy-excel</url>
+    <description>像SQL一样操作Excel,简化Excel的读写操作</description>
+
+    <!-- 开源协议 -->
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <!-- 开发者列表 -->
+    <developers>
+        <developer>
+            <name>zhangguangyong</name>
+            <email>1243610991@qq.com</email>
+        </developer>
+        <developer>
+            <name>蜗牛</name>
+            <email>510647180@qq.com</email>
+        </developer>
+        <developer>
+            <name>lixin901230</name>
+            <email>412506897@qq.com</email>
+        </developer>
+    </developers>
+
+    <!-- 软件配置 -->
+    <scm>
+        <connection>scm:https://git.oschina.net/geese/easy-excel.git</connection>
+        <developerConnection>scm:https://git.oschina.net/geese/easy-excel.git</developerConnection>
+        <url>https://git.oschina.net/geese/easy-excel</url>
+    </scm>
+
 
     <dependencies>
         <dependency>
@@ -43,7 +76,118 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
+            <!-- javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <show>private</show>
+                    <nohelp>true</nohelp>
+                    <aggregate>true</aggregate>
+                    <charset>UTF-8</charset>
+                    <encoding>UTF-8</encoding>
+                    <docencoding>UTF-8</docencoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <attach>true</attach>
+                        </configuration>
+                    </plugin>
+
+                    <!-- javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- gpg -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- nexus-staging -->
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.6</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>oss</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <!-- deploy mvn clean deploy -P release -Dgpg.passphrase=123456 -->
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>oss</id>
+                    <url>
+                        https://oss.sonatype.org/content/repositories/snapshots/
+                    </url>
+                </snapshotRepository>
+                <repository>
+                    <id>oss</id>
+                    <url>
+                        https://oss.sonatype.org/service/local/staging/deploy/maven2/
+                    </url>
+                </repository>
+            </distributionManagement>
+
+        </profile>
+    </profiles>
+
 </project>
