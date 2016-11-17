@@ -6,7 +6,7 @@
     <version>0.0.1</version>
     <packaging>jar</packaging>
     <name>Easy Excel</name>
-    <url>https://git.oschina.net/geese/easy-excel</url>
+    <url>https://github.com/freegeese/easy-excel</url>
     <description>像SQL一样操作Excel,简化Excel的读写操作</description>
 
     <!-- 开源协议 -->
@@ -35,9 +35,9 @@
 
     <!-- 软件配置 -->
     <scm>
-        <connection>scm:https://git.oschina.net/geese/easy-excel.git</connection>
-        <developerConnection>scm:https://git.oschina.net/geese/easy-excel.git</developerConnection>
-        <url>https://git.oschina.net/geese/easy-excel</url>
+        <connection>scm:https://github.com/freegeese/easy-excel.git</connection>
+        <developerConnection>scm:https://github.com/freegeese/easy-excel.git</developerConnection>
+        <url>https://github.com/freegeese/easy-excel</url>
     </scm>
 
 
