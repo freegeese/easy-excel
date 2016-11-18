@@ -1,0 +1,72 @@
+<easy-excel>
+
+<!-- share filter -->
+<filter id="" class="" />
+<filter id="" class="" />
+
+<excel id="" template="">
+    <!-- excel filter -->
+    <filters>
+        <filter class="" ref="" args="" />
+    </filters>
+
+    <sheet key="" index="" name=""  >
+        <!-- sheet filter -->
+        <filters>
+            <filter class="" ref="" />
+        </filters>
+
+        <tables>
+            <table key="" class="" limit="" >
+                <head x="">
+                    <column y="" key="" default=""/>
+                </head>
+            </table>
+        </tables>
+        <points>
+            <point x="" y="" key="" default="" />
+        </points>
+    </sheet>
+
+    <sheet key="" index="" name=""  >
+        <tables>
+            <table key="" class="" limit="" >
+                <head x="">
+                    <column y="" key="" default=""/>
+                </head>
+            </table>
+        </tables>
+        <points>
+            <point x="" y="" key="" default="" />
+        </points>
+    </sheet>
+</excel>
+
+<excel id="" template="">
+    <sheet key="" index="" name=""  >
+        <tables>
+            <table key="" class="" limit="" >
+                <head x="">
+                    <column y="" key="" default=""/>
+                </head>
+            </table>
+        </tables>
+        <points>
+            <point x="" y="" key="" default="" />
+        </points>
+    </sheet>
+
+    <sheet key="" index="" name=""  >
+        <tables>
+            <table key="" class="" limit="" >
+                <head x="">
+                    <column y="" key="" default=""/>
+                </head>
+            </table>
+        </tables>
+        <points>
+            <point x="" y="" key="" default="" />
+        </points>
+    </sheet>
+</excel>
+</easy-excel>
