@@ -1,16 +1,14 @@
 package com.geese.plugin.excel;
 
-import com.geese.plugin.excel.config.ExcelConfig;
+import com.geese.plugin.excel.config.Excel;
+import com.geese.plugin.excel.config.Point;
+import com.geese.plugin.excel.config.Sheet;
+import com.geese.plugin.excel.config.Table;
 import com.geese.plugin.excel.core.ExcelHelper;
 import com.geese.plugin.excel.core.ExcelSupport;
 import com.geese.plugin.excel.core.OperationKey;
+import com.geese.plugin.excel.filter.*;
 import com.geese.plugin.excel.util.Check;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.SheetConfig;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellWriteFilter;
-import com.geese.plugin.excel.filter.Filter;
-import com.geese.plugin.excel.filter.RowWriteFilter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -75,7 +73,7 @@ public class StandardWriter {
     /**
      * 写入Excel所需的Sheet配置信息
      */
-    private Map<String, SheetConfig> sheetConfigMap;
+    private Map<String, Sheet> sheetConfigMap;
 
     /**
      * 写入Excel时使用的模板
@@ -132,11 +130,11 @@ public class StandardWriter {
                 insert = insert.replaceAll("\\{|\\}", "");
                 Map<OperationKey, String> keyDataMap = ExcelHelper.insertKeyParse(insert);
                 String sheet = keyDataMap.get(OperationKey.INTO);
-                SheetConfig sheetConfig = sheetConfigMap.get(sheet);
-                if (null == sheetConfig) {
-                    sheetConfig = new SheetConfig();
-                    ExcelHelper.setSheet(sheet, sheetConfig);
-                    sheetConfigMap.put(sheet, sheetConfig);
+                Sheet sheat = sheetConfigMap.get(sheet);
+                if (null == sheat) {
+                    sheat = new Sheet();
+                    ExcelHelper.setSheet(sheet, sheat);
+                    sheetConfigMap.put(sheet, sheat);
                 }
                 // [column row name]
                 String[] rowColumnNames = keyDataMap.get(OperationKey.COLUMN).split(",");
@@ -146,8 +144,8 @@ public class StandardWriter {
                     point.setX(Integer.valueOf(items[0]));
                     point.setY(Integer.valueOf(items[1]));
                     point.setKey(items[2]);
-                    sheetConfig.addPoint(point);
-                    point.setSheetConfig(sheetConfig);
+                    sheat.addPoint(point);
+                    point.setSheet(sheat);
                 }
                 continue;
             }
@@ -156,11 +154,11 @@ public class StandardWriter {
             Map<OperationKey, String> keyDataMap = ExcelHelper.insertKeyParse(insert);
             // into sheet
             String sheet = keyDataMap.get(OperationKey.INTO);
-            SheetConfig sheetConfig = sheetConfigMap.get(sheet);
-            if (null == sheetConfig) {
-                sheetConfig = new SheetConfig();
-                ExcelHelper.setSheet(sheet, sheetConfig);
-                sheetConfigMap.put(sheet, sheetConfig);
+            Sheet sheat = sheetConfigMap.get(sheet);
+            if (null == sheat) {
+                sheat = new Sheet();
+                ExcelHelper.setSheet(sheet, sheat);
+                sheetConfigMap.put(sheet, sheat);
             }
 
             // insert columns
@@ -171,7 +169,7 @@ public class StandardWriter {
                 Point point = new Point();
                 point.setY(Integer.valueOf(columnWithName[0]));
                 point.setKey(columnWithName[1]);
-                table.addQueryPoint(point);
+                table.addColumn(point);
                 point.setTable(table);
             }
 
@@ -180,12 +178,12 @@ public class StandardWriter {
                 String[] startWithSize = keyDataMap.get(OperationKey.LIMIT).split(",");
                 table.setStartRow(Integer.valueOf(startWithSize[0].trim()));
                 if (startWithSize.length > 1) {
-                    table.setRowSize(Integer.valueOf(startWithSize[1].trim()));
+                    table.setEndRow(table.getStartRow() + Integer.valueOf(startWithSize[1].trim()));
                 }
             }
 
-            sheetConfig.addTable(table);
-            table.setSheetConfig(sheetConfig);
+            sheat.addTable(table);
+            table.setSheet(sheat);
         }
         return this;
     }
@@ -193,18 +191,18 @@ public class StandardWriter {
     /**
      * 添加Table数据
      *
-     * @param toSheet
+     * @param sheet
      * @param tableIndex
      * @param tableData
      * @return
      */
-    public StandardWriter addData(String toSheet, Integer tableIndex, Collection tableData) {
-        Check.notEmpty(toSheet, tableIndex, tableData);
-        if (!sheetConfigMap.containsKey(toSheet)) {
-            throw new IllegalArgumentException("不存在的sheet : " + toSheet);
+    public StandardWriter addData(String sheet, Integer tableIndex, List tableData) {
+        Check.notEmpty(sheet, tableIndex, tableData);
+        if (!sheetConfigMap.containsKey(sheet)) {
+            throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        SheetConfig sheetConfig = sheetConfigMap.get(toSheet);
-        Table table = sheetConfig.getTableList().get(tableIndex);
+        Sheet sheetConfig = sheetConfigMap.get(sheet);
+        Table table = sheetConfig.getTables().get(tableIndex);
         table.setData(tableData);
         return this;
     }
@@ -212,85 +210,73 @@ public class StandardWriter {
     /**
      * 添加散列点数据
      *
-     * @param toSheet
+     * @param sheet
      * @param pointData
      * @return
      */
-    public StandardWriter addData(String toSheet, Map pointData) {
-        Check.notEmpty(toSheet, pointData);
-        if (!sheetConfigMap.containsKey(toSheet)) {
-            throw new IllegalArgumentException("不存在的sheet : " + toSheet);
+    public StandardWriter addData(String sheet, Map<String, Object> pointData) {
+        Check.notEmpty(sheet, pointData);
+        if (!sheetConfigMap.containsKey(sheet)) {
+            throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        SheetConfig sheetConfig = sheetConfigMap.get(toSheet);
-        sheetConfig.setPointData(pointData);
+        Sheet sheetConfig = sheetConfigMap.get(sheet);
+        Set<String> keys = pointData.keySet();
+        for (String key : keys) {
+            Point point = sheetConfig.findPoint(key);
+            Check.notNull(point, "找不到：[" + key + "] 对应的point");
+            point.setData(pointData.get(key));
+        }
         return this;
     }
 
-    /**
-     * 添加过滤器到Sheet上
-     *
-     * @param toSheet
-     * @param first
-     * @param second
-     * @param more
-     * @return this
-     */
-    public StandardWriter addFilter(String toSheet, Filter first, Filter second, Filter... more) {
-        Check.notNull(first, second);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(first);
-        filters.add(second);
-        if (null != more) {
-            filters.addAll(Arrays.asList(more));
-        }
-        return addFilter(toSheet, filters);
-    }
-
-    /**
-     * 添加过滤器
-     *
-     * @param toSheet
-     * @param filter
-     * @return
-     */
-    public StandardWriter addFilter(String toSheet, Filter filter) {
-        return addFilter(toSheet, Arrays.asList(filter));
-    }
-
-    /**
-     * 添加过滤器
-     *
-     * @param toSheet
-     * @param filters
-     * @return
-     */
-    public StandardWriter addFilter(String toSheet, Filter[] filters) {
-        return addFilter(toSheet, Arrays.asList(filters));
-    }
-
-    /**
-     * 添加过滤器
-     *
-     * @param toSheet
-     * @param filters
-     * @return
-     */
-    public StandardWriter addFilter(String toSheet, Collection<Filter> filters) {
+    public StandardWriter addFilter(String sheet, Integer tableIndex, Collection<Filter> filters) {
         Check.notEmpty(filters);
-        if (!sheetConfigMap.containsKey(toSheet)) {
-            throw new IllegalArgumentException("不存在的sheet : " + toSheet);
+        if (!sheetConfigMap.containsKey(sheet)) {
+            throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        SheetConfig sheetConfig = sheetConfigMap.get(toSheet);
+        Sheet sheetConfig = sheetConfigMap.get(sheet);
+        Table table = sheetConfig.getTables().get(tableIndex);
+
         for (Filter filter : filters) {
-            if (filter instanceof RowWriteFilter) {
-                sheetConfig.addRowBeforeWriteFilter((RowWriteFilter) filter);
+            if (filter instanceof RowBeforeWriteFilter) {
+                table.addRowBeforeWriteFilter((RowBeforeWriteFilter) filter);
                 continue;
             }
-            if (filter instanceof CellWriteFilter) {
-                sheetConfig.addCellBeforeWriteFilter((CellWriteFilter) filter);
+            if (filter instanceof RowAfterWriteFilter) {
+                table.addRowAfterWriteFilter((RowAfterWriteFilter) filter);
                 continue;
             }
-            throw new IllegalArgumentException("写入 Excel 不支持的过滤器类型: " + filter.getClass());
+            if (filter instanceof CellBeforeWriteFilter) {
+                table.addCellBeforeWriteFilter((CellBeforeWriteFilter) filter);
+                continue;
+            }
+            if (filter instanceof CellAfterWriteFilter) {
+                table.addCellAfterWriteFilter((CellAfterWriteFilter) filter);
+                continue;
+            }
+            throw new IllegalArgumentException("写入Table不支持的过滤器类型: " + filter.getClass());
+        }
+        return this;
+    }
+
+    public StandardWriter addFilter(String sheet, String pointKey, Collection<Filter> filters) {
+        Check.notEmpty(filters);
+        if (!sheetConfigMap.containsKey(sheet)) {
+            throw new IllegalArgumentException("不存在的sheet : " + sheet);
+        }
+        Sheet sheetConfig = sheetConfigMap.get(sheet);
+        Point point = sheetConfig.findPoint(pointKey);
+
+        for (Filter filter : filters) {
+            if (filter instanceof CellBeforeWriteFilter) {
+                point.addBeforeWriteFilter(filter);
+                continue;
+            }
+            if (filter instanceof CellAfterWriteFilter) {
+                point.addAfterWriteFilter(filter);
+                continue;
+            }
+            throw new IllegalArgumentException("写入Point不支持的过滤器类型: " + filter.getClass());
         }
         return this;
     }
@@ -305,9 +291,9 @@ public class StandardWriter {
     }
 
     public StandardWriter execute(boolean useXlsx) {
-        ExcelConfig excelConfig = new ExcelConfig();
-        excelConfig.setOutput(output);
-        excelConfig.setSheetConfigs(sheetConfigMap.values());
+        Excel excel = new Excel();
+        excel.setOutput(output);
+        excel.setSheets(new ArrayList<>(sheetConfigMap.values()));
         // 存在模板，优先使用模板
         Workbook workbook;
         if (null != template) {
@@ -321,7 +307,7 @@ public class StandardWriter {
             workbook = useXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
         }
         ExcelSupport support = new ExcelSupport();
-        support.writeExcel(workbook, excelConfig);
+        support.writeExcel(workbook, excel);
         return this;
     }
 

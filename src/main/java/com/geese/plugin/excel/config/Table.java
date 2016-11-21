@@ -1,9 +1,10 @@
 package com.geese.plugin.excel.config;
 
+import com.geese.plugin.excel.filter.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * sheet中数据表格的配置信息
@@ -12,20 +13,11 @@ import java.util.Map;
  * @date 2016/11/16 16:04
  * @sine 0.0.1
  */
-public class Table {
+public class Table extends Filterable {
     /**
      * 映射sheet中一个列表的头部单元格
      */
-    private List<Point> headPointList;
-
-    /**
-     * 对table的过滤条件
-     */
-    private String where;
-    /**
-     * 对table过滤条件的所需的参数
-     */
-    private Map whereParameter;
+    private List<Point> columns;
 
     /**
      * 读取sheet的开始行
@@ -35,56 +27,61 @@ public class Table {
     /**
      * 读取sheet的行数
      */
-    private Integer rowSize;
-
-    /**
-     * 读取sheet的开始行列
-     */
-    private Integer startColumn;
-
-    /**
-     * 读取sheet的列间隔
-     */
-    private Integer columnStep;
+    private Integer endRow;
 
     /**
      * table的数据源
      */
-    private Collection data;
+    private List data;
 
     /**
      * table配置关联的sheet配置信息
      */
-    private SheetConfig sheetConfig;
+    private Sheet sheet;
+
+    private FilterChain rowBeforeReadFilterChain;
+
+    private FilterChain rowAfterReadFilterChain;
+
+    private FilterChain rowBeforeWriteFilterChain;
+
+    private FilterChain rowAfterWriteFilterChain;
+
+    private FilterChain cellBeforeReadFilterChain;
+
+    private FilterChain cellAfterReadFilterChain;
+
+    private FilterChain cellBeforeWriteFilterChain;
+
+    private FilterChain cellAfterWriteFilterChain;
 
     public Table() {
         this.startRow = 0;
-        this.startColumn = 0;
-        this.columnStep = 0;
     }
 
-    public List<Point> getHeadPointList() {
-        return headPointList;
+
+    public Table addColumn(Point column) {
+        if (null == this.columns) {
+            this.columns = new ArrayList<>();
+        }
+        this.columns.add(column);
+        return this;
     }
 
-    public void setHeadPointList(List<Point> headPointList) {
-        this.headPointList = headPointList;
+    public Table addColumns(Collection<Point> columns) {
+        if (null == this.columns) {
+            this.columns = new ArrayList<>();
+        }
+        this.columns.addAll(columns);
+        return this;
     }
 
-    public String getWhere() {
-        return where;
+    public List<Point> getColumns() {
+        return columns;
     }
 
-    public void setWhere(String where) {
-        this.where = where;
-    }
-
-    public Map getWhereParameter() {
-        return whereParameter;
-    }
-
-    public void setWhereParameter(Map whereParameter) {
-        this.whereParameter = whereParameter;
+    public void setColumns(List<Point> columns) {
+        this.columns = columns;
     }
 
     public Integer getStartRow() {
@@ -95,51 +92,139 @@ public class Table {
         this.startRow = startRow;
     }
 
-    public Integer getRowSize() {
-        return rowSize;
+    public Integer getEndRow() {
+        return endRow;
     }
 
-    public void setRowSize(Integer rowSize) {
-        this.rowSize = rowSize;
+    public void setEndRow(Integer endRow) {
+        this.endRow = endRow;
     }
 
-    public Integer getStartColumn() {
-        return startColumn;
-    }
-
-    public void setStartColumn(Integer startColumn) {
-        this.startColumn = startColumn;
-    }
-
-    public Integer getColumnStep() {
-        return columnStep;
-    }
-
-    public void setColumnStep(Integer columnStep) {
-        this.columnStep = columnStep;
-    }
-
-    public Collection getData() {
+    public List getData() {
         return data;
     }
 
-    public void setData(Collection data) {
+    public void setData(List data) {
         this.data = data;
     }
 
-    public SheetConfig getSheetConfig() {
-        return sheetConfig;
+    public Sheet getSheet() {
+        return sheet;
     }
 
-    public void setSheetConfig(SheetConfig sheetConfig) {
-        this.sheetConfig = sheetConfig;
+    public void setSheet(Sheet sheet) {
+        this.sheet = sheet;
     }
 
-    public Table addQueryPoint(Point point) {
-        if (null == headPointList) {
-            headPointList = new ArrayList<>();
+    public void addRowBeforeReadFilter(RowBeforeReadFilter filter) {
+        if (null == rowBeforeReadFilterChain) {
+            rowBeforeReadFilterChain = new FilterChain();
         }
-        headPointList.add(point);
-        return this;
+        rowBeforeReadFilterChain.addFilter(filter);
+    }
+
+    public void addRowBeforeReadFilters(Collection<RowBeforeReadFilter> filters) {
+        if (null == rowBeforeReadFilterChain) {
+            rowBeforeReadFilterChain = new FilterChain();
+        }
+        rowBeforeReadFilterChain.addFilters(filters);
+    }
+
+    public void addRowAfterReadFilter(RowAfterReadFilter filter) {
+        if (null == rowAfterReadFilterChain) {
+            rowAfterReadFilterChain = new FilterChain();
+        }
+        rowAfterReadFilterChain.addFilter(filter);
+    }
+
+    public void addRowAfterReadFilters(Collection<RowAfterReadFilter> filters) {
+        if (null == rowAfterReadFilterChain) {
+            rowAfterReadFilterChain = new FilterChain();
+        }
+        rowAfterReadFilterChain.addFilters(filters);
+    }
+
+    public void addCellBeforeReadFilter(CellBeforeReadFilter filter) {
+        if (null == cellBeforeReadFilterChain) {
+            cellBeforeReadFilterChain = new FilterChain();
+        }
+        cellBeforeReadFilterChain.addFilter(filter);
+    }
+
+    public void addCellBeforeReadFilters(Collection<CellBeforeReadFilter> filters) {
+        if (null == cellBeforeReadFilterChain) {
+            cellBeforeReadFilterChain = new FilterChain();
+        }
+        cellBeforeReadFilterChain.addFilters(filters);
+    }
+
+    public void addCellAfterReadFilter(CellAfterReadFilter filter) {
+        if (null == cellAfterReadFilterChain) {
+            cellAfterReadFilterChain = new FilterChain();
+        }
+        cellAfterReadFilterChain.addFilter(filter);
+    }
+
+    public void addCellAfterReadFilters(Collection<CellAfterReadFilter> filters) {
+        if (null == cellAfterReadFilterChain) {
+            cellAfterReadFilterChain = new FilterChain();
+        }
+        cellAfterReadFilterChain.addFilters(filters);
+    }
+
+    public void addRowBeforeWriteFilter(RowBeforeWriteFilter filter) {
+        if (null == rowBeforeWriteFilterChain) {
+            rowBeforeWriteFilterChain = new FilterChain();
+        }
+        rowBeforeWriteFilterChain.addFilter(filter);
+    }
+
+    public void addRowBeforeWriteFilters(Collection<RowBeforeWriteFilter> filters) {
+        if (null == rowBeforeWriteFilterChain) {
+            rowBeforeWriteFilterChain = new FilterChain();
+        }
+        rowBeforeWriteFilterChain.addFilters(filters);
+    }
+
+    public void addRowAfterWriteFilter(RowAfterWriteFilter filter) {
+        if (null == rowAfterWriteFilterChain) {
+            rowAfterWriteFilterChain = new FilterChain();
+        }
+        rowAfterWriteFilterChain.addFilter(filter);
+    }
+
+    public void addRowAfterWriteFilters(Collection<RowAfterWriteFilter> filters) {
+        if (null == rowAfterWriteFilterChain) {
+            rowAfterWriteFilterChain = new FilterChain();
+        }
+        rowAfterWriteFilterChain.addFilters(filters);
+    }
+
+    public void addCellBeforeWriteFilter(CellBeforeWriteFilter filter) {
+        if (null == cellBeforeWriteFilterChain) {
+            cellBeforeWriteFilterChain = new FilterChain();
+        }
+        cellBeforeWriteFilterChain.addFilter(filter);
+    }
+
+    public void addCellBeforeWriteFilters(Collection<CellBeforeWriteFilter> filters) {
+        if (null == cellBeforeWriteFilterChain) {
+            cellBeforeWriteFilterChain = new FilterChain();
+        }
+        cellBeforeWriteFilterChain.addFilters(filters);
+    }
+
+    public void addCellAfterWriteFilter(CellAfterWriteFilter filter) {
+        if (null == cellAfterWriteFilterChain) {
+            cellAfterWriteFilterChain = new FilterChain();
+        }
+        cellAfterWriteFilterChain.addFilter(filter);
+    }
+
+    public void addCellAfterWriteFilters(Collection<CellAfterWriteFilter> filters) {
+        if (null == cellAfterWriteFilterChain) {
+            cellAfterWriteFilterChain = new FilterChain();
+        }
+        cellAfterWriteFilterChain.addFilters(filters);
     }
 }

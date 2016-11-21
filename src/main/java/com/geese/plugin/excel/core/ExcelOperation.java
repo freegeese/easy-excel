@@ -1,12 +1,11 @@
 package com.geese.plugin.excel.core;
 
-import com.geese.plugin.excel.config.ExcelConfig;
+import com.geese.plugin.excel.config.Excel;
 import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.SheetConfig;
+import com.geese.plugin.excel.config.Sheet;
 import com.geese.plugin.excel.config.Table;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
@@ -24,7 +23,7 @@ public interface ExcelOperation {
      * @param config
      * @return
      */
-    Object readExcel(Workbook workbook, ExcelConfig config);
+    Object readExcel(Workbook workbook, Excel config);
 
     /**
      * excel写入
@@ -32,7 +31,7 @@ public interface ExcelOperation {
      * @param workbook
      * @param config
      */
-    void writeExcel(Workbook workbook, ExcelConfig config);
+    void writeExcel(Workbook workbook, Excel config);
 
     /**
      * sheet读取
@@ -41,7 +40,7 @@ public interface ExcelOperation {
      * @param config
      * @return
      */
-    Object readSheet(Sheet sheet, SheetConfig config);
+    Object readSheet(org.apache.poi.ss.usermodel.Sheet sheet, Sheet config);
 
     /**
      * sheet写入
@@ -49,7 +48,7 @@ public interface ExcelOperation {
      * @param sheet
      * @param config
      */
-    void writeSheet(Sheet sheet, SheetConfig config);
+    void writeSheet(org.apache.poi.ss.usermodel.Sheet sheet, Sheet config);
 
     /**
      * row读取

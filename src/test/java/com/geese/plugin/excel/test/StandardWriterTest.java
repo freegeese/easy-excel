@@ -3,8 +3,8 @@ package com.geese.plugin.excel.test;
 import com.geese.plugin.excel.StandardWriter;
 import com.geese.plugin.excel.config.Point;
 import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellWriteFilter;
-import com.geese.plugin.excel.filter.RowWriteFilter;
+import com.geese.plugin.excel.filter.CellBeforeWriteFilter;
+import com.geese.plugin.excel.filter.RowBeforeWriteFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;
@@ -88,12 +88,12 @@ public class StandardWriterTest {
                 // limit:[startRow, size] 从哪行开始写，写多少行 默认：[0, tableData.size()]
                 .insert("0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone into Sheet1 limit 1, 30")
                 // filter: 在数据写入到row或cell之前，可以对数据进行过滤修改, 过滤器需要绑定到某个Sheet上执行
-                .addFilter("Sheet1", new RowWriteFilter() {
+                .addFilter("Sheet1", new RowBeforeWriteFilter() {
                     @Override
                     public void doFilter(Row target, Object data, Table config) {
                         System.out.println("<<<<<<<<<<<<写入Row之前过滤：" + data + ">>>>>>>>>>>");
                     }
-                }, new CellWriteFilter() {
+                }, new CellBeforeWriteFilter() {
                     @Override
                     public void doFilter(Cell target, Object data, Point config) {
                         System.out.println("<<<<<<<<<<<<写入Cell之前过滤：" + data + ">>>>>>>>>>>");

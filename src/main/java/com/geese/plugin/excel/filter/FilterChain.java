@@ -1,5 +1,6 @@
 package com.geese.plugin.excel.filter;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,6 +22,11 @@ public class FilterChain<T, M> {
      */
     public FilterChain addFilter(Filter filter) {
         filterList.add(filter);
+        return this;
+    }
+
+    public FilterChain addFilters(Collection<Filter> filters) {
+        filterList.addAll(filters);
         return this;
     }
 

@@ -10,5 +10,5 @@ import org.apache.poi.ss.usermodel.Row;
  * @date 2016/11/16 16:25
  * @sine 0.0.1
  */
-public interface RowWriteFilter extends RowFilter<Row, Table> {
+public interface RowBeforeWriteFilter extends RowFilter<Row, Table> {
 }

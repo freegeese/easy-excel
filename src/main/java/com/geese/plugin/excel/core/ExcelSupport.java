@@ -1,14 +1,13 @@
 package com.geese.plugin.excel.core;
 
-import com.geese.plugin.excel.config.ExcelConfig;
+import com.geese.plugin.excel.config.Excel;
 import com.geese.plugin.excel.util.EmptyUtils;
 import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.SheetConfig;
+import com.geese.plugin.excel.config.Sheet;
 import com.geese.plugin.excel.config.Table;
 import com.geese.plugin.excel.filter.FilterChain;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
@@ -20,29 +19,29 @@ import java.util.*;
  */
 public class ExcelSupport implements ExcelOperation {
     @Override
-    public Object readExcel(Workbook workbook, ExcelConfig config) {
-        Collection<SheetConfig> sheetConfigList = config.getSheetConfigs();
+    public Object readExcel(Workbook workbook, Excel config) {
+        Collection<Sheet> sheetList = config.getSheets();
         Map excelData = new HashMap();
-        for (SheetConfig sheetConfig : sheetConfigList) {
-            Sheet sheet;
+        for (Sheet sheat : sheetList) {
+            org.apache.poi.ss.usermodel.Sheet sheet;
             // 根据名称读取sheet
-            String sheetName = sheetConfig.getSheetName();
+            String sheetName = sheat.getName();
             if (null != sheetName) {
                 sheet = workbook.getSheet(sheetName);
                 if (null == sheet) {
                     throw new IllegalArgumentException("根据sheet名称：" + sheetName + "，没有找到对应的sheet");
                 }
-                excelData.put(sheetName, readSheet(sheet, sheetConfig));
+                excelData.put(sheetName, readSheet(sheet, sheat));
                 continue;
             }
             // 根据下标读取sheet
-            Integer sheetIndex = sheetConfig.getSheetIndex();
+            Integer sheetIndex = sheat.getIndex();
             if (null != sheetIndex) {
                 sheet = workbook.getSheet(String.valueOf(sheetIndex));
                 if (null == sheet) {
                     sheet = workbook.getSheetAt(sheetIndex);
                 }
-                excelData.put(sheetIndex, readSheet(sheet, sheetConfig));
+                excelData.put(sheetIndex, readSheet(sheet, sheat));
                 continue;
             }
             // 使用默认激活
@@ -50,47 +49,47 @@ public class ExcelSupport implements ExcelOperation {
             if (null == sheet) {
                 throw new IllegalArgumentException("找到可读取的sheet");
             }
-            excelData.put(sheetIndex, readSheet(sheet, sheetConfig));
+            excelData.put(sheetIndex, readSheet(sheet, sheat));
         }
         return excelData;
     }
 
     @Override
-    public void writeExcel(Workbook workbook, ExcelConfig config) {
-        Collection<SheetConfig> sheetConfigList = config.getSheetConfigs();
+    public void writeExcel(Workbook workbook, Excel config) {
+        Collection<Sheet> sheetList = config.getSheets();
         boolean notTemplate = (null == config.getTemplate());
-        for (SheetConfig sheetConfig : sheetConfigList) {
-            Sheet sheet;
+        for (Sheet sheat : sheetList) {
+            org.apache.poi.ss.usermodel.Sheet sheet;
             // 根据配置的名称获取sheet
-            String sheetName = sheetConfig.getSheetName();
+            String sheetName = sheat.getName();
             if (null != sheetName) {
                 sheet = workbook.getSheet(sheetName);
                 // 不存在则根据名称创建
                 if (null == sheet) {
                     sheet = workbook.createSheet(sheetName);
                 }
-                writeSheet(sheet, sheetConfig);
+                writeSheet(sheet, sheat);
                 continue;
             }
 
             // 根据配置的下标获取sheet
-            Integer sheetIndex = sheetConfig.getSheetIndex();
+            Integer sheetIndex = sheat.getIndex();
             if (null != sheetIndex) {
                 // 未指定模板，根据指定的下标新创建一个sheet
                 if (notTemplate) {
                     sheet = workbook.createSheet(String.valueOf(sheetIndex));
-                    writeSheet(sheet, sheetConfig);
+                    writeSheet(sheet, sheat);
                     continue;
                 }
                 // 指定模板，优先根据名称获取，其次再根据下标获取
                 sheet = workbook.getSheet(String.valueOf(sheetIndex));
                 if (null != sheet) {
-                    writeSheet(sheet, sheetConfig);
+                    writeSheet(sheet, sheat);
                     continue;
                 }
                 sheet = workbook.getSheetAt(sheetIndex);
                 if (null != sheet) {
-                    writeSheet(sheet, sheetConfig);
+                    writeSheet(sheet, sheat);
                     continue;
                 }
             }
@@ -98,13 +97,13 @@ public class ExcelSupport implements ExcelOperation {
             // 未指定名称和下标，并且是新创建的Workbook
             if (notTemplate) {
                 sheet = workbook.createSheet();
-                writeSheet(sheet, sheetConfig);
+                writeSheet(sheet, sheat);
                 continue;
             }
             // 未指定名称和下标，并且是模板，就用默认激活的
             sheet = workbook.getSheetAt(workbook.getActiveSheetIndex());
             if (null != sheet) {
-                writeSheet(sheet, sheetConfig);
+                writeSheet(sheet, sheat);
                 continue;
             }
             throw new IllegalArgumentException("未找到可写入的sheet");
@@ -120,10 +119,10 @@ public class ExcelSupport implements ExcelOperation {
     }
 
     @Override
-    public Object readSheet(Sheet sheet, SheetConfig config) {
+    public Object readSheet(org.apache.poi.ss.usermodel.Sheet sheet, Sheet config) {
         // Table 处理
         Map sheetData = new HashMap();
-        List<Table> tableList = config.getTableList();
+        List<Table> tableList = config.getTables();
         if (EmptyUtils.notEmpty(tableList)) {
             List<Object> tableDataList = new ArrayList<>();
             for (Table table : tableList) {
@@ -132,7 +131,7 @@ public class ExcelSupport implements ExcelOperation {
             sheetData.put("tableDataList", tableDataList);
         }
         // Point 处理
-        List<Point> points = config.getPointList();
+        List<Point> points = config.getPoints();
         if (EmptyUtils.notEmpty(points)) {
             Map pointDataMap = new LinkedHashMap();
             for (Point point : points) {
@@ -145,16 +144,16 @@ public class ExcelSupport implements ExcelOperation {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, SheetConfig config) {
+    public void writeSheet(org.apache.poi.ss.usermodel.Sheet sheet, Sheet config) {
         // Table 处理
-        List<Table> tableList = config.getTableList();
+        List<Table> tableList = config.getTables();
         if (EmptyUtils.notEmpty(tableList)) {
             for (Table table : tableList) {
                 writeTable(sheet, table, config);
             }
         }
         // Point 处理
-        List<Point> points = config.getPointList();
+        List<Point> points = config.getPoints();
         if (EmptyUtils.notEmpty(points)) {
             // TODO: 2016/11/13 将index point data -> named point data
             Map pointDataMap = config.getPointData();
@@ -176,9 +175,9 @@ public class ExcelSupport implements ExcelOperation {
      *
      * @param sheet
      * @param table
-     * @param sheetConfig
+     * @param sheat
      */
-    private void writeTable(Sheet sheet, Table table, SheetConfig sheetConfig) {
+    private void writeTable(org.apache.poi.ss.usermodel.Sheet sheet, Table table, Sheet sheat) {
         List tableData = new ArrayList<>(table.getData());
         // 开始行
         Integer startRow = table.getStartRow();
@@ -188,7 +187,7 @@ public class ExcelSupport implements ExcelOperation {
         // 结束行
         Integer endRow = (null == rowSize) ? (startRow + tableData.size()) : (startRow + rowSize);
         // 写入行之前的过滤链
-        FilterChain chain = sheetConfig.getRowWriteFilterChain();
+        FilterChain chain = sheat.getRowWriteFilterChain();
 
         int dataIndex = 0;
         for (int i = startRow; i < endRow; i++) {
@@ -207,10 +206,10 @@ public class ExcelSupport implements ExcelOperation {
      *
      * @param sheet
      * @param table
-     * @param sheetConfig
+     * @param sheat
      * @return
      */
-    private List readTable(Sheet sheet, Table table, SheetConfig sheetConfig) {
+    private List readTable(org.apache.poi.ss.usermodel.Sheet sheet, Table table, Sheet sheat) {
         // 开始行
         Integer startRow = table.getStartRow();
         // 行数
@@ -218,9 +217,9 @@ public class ExcelSupport implements ExcelOperation {
         // 结束行
         Integer endRow = (null == rowSize) ? sheet.getLastRowNum() : (startRow + rowSize - 1);
         // 读取行之前的过滤链
-        FilterChain rowBeforeReadFilterChain = sheetConfig.getRowBeforeReadFilterChain();
+        FilterChain rowBeforeReadFilterChain = sheat.getRowBeforeReadFilterChain();
         // 读取行之后的过滤链
-        FilterChain rowAfterReadFilterChain = sheetConfig.getRowAfterReadFilterChain();
+        FilterChain rowAfterReadFilterChain = sheat.getRowAfterReadFilterChain();
         List tableData = new ArrayList();
         for (int i = startRow; i <= endRow; i++) {
             Row row = sheet.getRow(i);
@@ -258,12 +257,12 @@ public class ExcelSupport implements ExcelOperation {
 
     @Override
     public Object readRow(Row row, Table table) {
-        SheetConfig sheetConfig = table.getSheetConfig();
-        FilterChain cellBeforeReadFilterChain = sheetConfig.getCellBeforeReadFilterChain();
-        FilterChain cellAfterReadFilterChain = sheetConfig.getCellAfterReadFilterChain();
+        Sheet sheet = table.getSheet();
+        FilterChain cellBeforeReadFilterChain = sheet.getCellBeforeReadFilterChain();
+        FilterChain cellAfterReadFilterChain = sheet.getCellAfterReadFilterChain();
 
         Map rowData = new HashMap();
-        for (Point point : table.getHeadPointList()) {
+        for (Point point : table.getColumns()) {
             // TODO 异常处理 cell == null
             Cell cell = row.getCell(point.getY());
             if (null == cell) {
@@ -287,9 +286,9 @@ public class ExcelSupport implements ExcelOperation {
     public void writeRow(Row row, Object value, Table table) {
         // 键值对类型数据
         if (Map.class.isAssignableFrom(value.getClass())) {
-            FilterChain chain = table.getSheetConfig().getCellWriteFilterChain();
+            FilterChain chain = table.getSheet().getCellWriteFilterChain();
             Map rowValue = (Map) value;
-            for (Point point : table.getHeadPointList()) {
+            for (Point point : table.getColumns()) {
                 Cell cell = ExcelHelper.createCell(row, point.getY());
                 Object cellValue = rowValue.get(point.getKey());
                 // 写入列之前过滤

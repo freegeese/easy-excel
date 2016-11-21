@@ -3,6 +3,7 @@ package com.geese.plugin.excel.config;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Excel 配置信息
@@ -11,7 +12,7 @@ import java.util.Collection;
  * @date 2016/11/16 15:53
  * @sine 0.0.1
  */
-public class ExcelConfig {
+public class Excel extends Filterable {
     /**
      * 读取Excel所需的输入源
      */
@@ -30,7 +31,7 @@ public class ExcelConfig {
     /**
      * Excel中Sheet表格的配置信息
      */
-    private Collection<SheetConfig> sheetConfigs;
+    private List<Sheet> sheets;
 
     public InputStream getInput() {
         return input;
@@ -56,11 +57,11 @@ public class ExcelConfig {
         this.template = template;
     }
 
-    public Collection<SheetConfig> getSheetConfigs() {
-        return sheetConfigs;
+    public List<Sheet> getSheets() {
+        return sheets;
     }
 
-    public void setSheetConfigs(Collection<SheetConfig> sheetConfigs) {
-        this.sheetConfigs = sheetConfigs;
+    public void setSheets(List<Sheet> sheets) {
+        this.sheets = sheets;
     }
 }

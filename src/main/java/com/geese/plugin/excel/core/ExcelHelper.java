@@ -1,6 +1,6 @@
 package com.geese.plugin.excel.core;
 
-import com.geese.plugin.excel.config.SheetConfig;
+import com.geese.plugin.excel.config.Sheet;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -174,7 +174,7 @@ public class ExcelHelper {
      * @param rowIndex
      * @return
      */
-    public static Row createRow(Sheet sheet, int rowIndex) {
+    public static Row createRow(org.apache.poi.ss.usermodel.Sheet sheet, int rowIndex) {
         Row row = sheet.getRow(rowIndex);
         if (null != row) {
             return row;
@@ -446,13 +446,13 @@ public class ExcelHelper {
      * 设置sheet名称或者索引
      *
      * @param sheet
-     * @param sheetConfig
+     * @param sheat
      */
-    public static void setSheet(String sheet, SheetConfig sheetConfig) {
+    public static void setSheet(String sheet, Sheet sheat) {
         if (sheet.matches("([0-9])|([1-9]\\d*)")) {
-            sheetConfig.setSheetIndex(Integer.valueOf(sheet));
+            sheat.setIndex(Integer.valueOf(sheet));
         } else {
-            sheetConfig.setSheetName(sheet);
+            sheat.setName(sheet);
         }
     }
 }

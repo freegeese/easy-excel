@@ -3,8 +3,8 @@ package com.geese.plugin.excel.test;
 import com.geese.plugin.excel.SimpleWriter;
 import com.geese.plugin.excel.config.Point;
 import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellWriteFilter;
-import com.geese.plugin.excel.filter.RowWriteFilter;
+import com.geese.plugin.excel.filter.CellBeforeWriteFilter;
+import com.geese.plugin.excel.filter.RowBeforeWriteFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;
@@ -118,7 +118,7 @@ public class SimpleWriterTest {
         /**
          * 写入到row之前过滤，可对row和data进行修改
          */
-        RowWriteFilter rowWriteFilter = new RowWriteFilter() {
+        RowBeforeWriteFilter rowBeforeWriteFilter = new RowBeforeWriteFilter() {
             @Override
             public void doFilter(Row target, Object data, Table config) {
                 System.out.println(data);
@@ -127,7 +127,7 @@ public class SimpleWriterTest {
         /**
          * 写入到cell之前过滤，可对cell和data进行修改
          */
-        CellWriteFilter cellWriteFilter = new CellWriteFilter() {
+        CellBeforeWriteFilter cellBeforeWriteFilter = new CellBeforeWriteFilter() {
             @Override
             public void doFilter(Cell target, Object data, Point config) {
                 System.out.println(data);
@@ -136,7 +136,7 @@ public class SimpleWriterTest {
         // 通过SimpleWriter类操作
         SimpleWriter.build(output)  // 必选，将生成的excel输出到什么地方
                 .insert("0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone")  // 必选，数据Key与Excel列的映射
-                .addFilter(rowWriteFilter, cellWriteFilter)
+                .addFilter(rowBeforeWriteFilter, cellBeforeWriteFilter)
                 .addData(tableData) // 必选，插入的数据
                 .execute(); // 执行
     }

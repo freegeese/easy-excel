@@ -1,14 +1,14 @@
 package com.geese.plugin.excel;
 
-import com.geese.plugin.excel.config.ExcelConfig;
+import com.geese.plugin.excel.config.Excel;
+import com.geese.plugin.excel.config.Point;
+import com.geese.plugin.excel.config.Sheet;
+import com.geese.plugin.excel.config.Table;
 import com.geese.plugin.excel.core.ExcelHelper;
+import com.geese.plugin.excel.core.ExcelSupport;
 import com.geese.plugin.excel.core.OperationKey;
 import com.geese.plugin.excel.filter.*;
 import com.geese.plugin.excel.util.Check;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.SheetConfig;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.core.ExcelSupport;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -65,7 +65,7 @@ public class StandardReader {
     /**
      * 读取excel所需的sheet配置信息
      */
-    private Map<String, SheetConfig> sheetConfigMap;
+    private Map<String, Sheet> sheetConfigMap;
 
     public StandardReader() {
         this.sheetConfigMap = new LinkedHashMap();
@@ -100,11 +100,11 @@ public class StandardReader {
                 query = query.replaceAll("\\{|\\}", "");
                 Map<OperationKey, String> keyDataMap = ExcelHelper.selectKeyParse(query);
                 String sheet = keyDataMap.get(OperationKey.FROM);
-                SheetConfig sheetConfig = sheetConfigMap.get(sheet);
-                if (null == sheetConfig) {
-                    sheetConfig = new SheetConfig();
-                    ExcelHelper.setSheet(sheet, sheetConfig);
-                    sheetConfigMap.put(sheet, sheetConfig);
+                Sheet sheat = sheetConfigMap.get(sheet);
+                if (null == sheat) {
+                    sheat = new Sheet();
+                    ExcelHelper.setSheet(sheet, sheat);
+                    sheetConfigMap.put(sheet, sheat);
                 }
                 // [column row name]
                 String[] rowColumnNames = keyDataMap.get(OperationKey.COLUMN).split(",");
@@ -114,8 +114,8 @@ public class StandardReader {
                     point.setX(Integer.valueOf(items[0]));
                     point.setY(Integer.valueOf(items[1]));
                     point.setKey(items[2]);
-                    sheetConfig.addPoint(point);
-                    point.setSheetConfig(sheetConfig);
+                    sheat.addPoint(point);
+                    point.setSheet(sheat);
                 }
                 continue;
             }
@@ -123,11 +123,11 @@ public class StandardReader {
             Map<OperationKey, String> keyDataMap = ExcelHelper.selectKeyParse(query);
             // from sheet
             String sheet = keyDataMap.get(OperationKey.FROM);
-            SheetConfig sheetConfig = sheetConfigMap.get(sheet);
-            if (null == sheetConfig) {
-                sheetConfig = new SheetConfig();
-                ExcelHelper.setSheet(sheet, sheetConfig);
-                sheetConfigMap.put(sheet, sheetConfig);
+            Sheet sheat = sheetConfigMap.get(sheet);
+            if (null == sheat) {
+                sheat = new Sheet();
+                ExcelHelper.setSheet(sheet, sheat);
+                sheetConfigMap.put(sheet, sheat);
             }
 
             // select columns
@@ -138,155 +138,85 @@ public class StandardReader {
                 Point point = new Point();
                 point.setY(Integer.valueOf(columnWithName[0]));
                 point.setKey(columnWithName[1]);
-                table.addQueryPoint(point);
+                table.addColumn(point);
                 point.setTable(table);
-            }
-
-            // where
-            if (keyDataMap.containsKey(OperationKey.WHERE)) {
-                table.setWhere(keyDataMap.get(OperationKey.WHERE));
             }
 
             // limit
             if (keyDataMap.containsKey(OperationKey.LIMIT)) {
-                String[] startWithSize = keyDataMap.get(OperationKey.LIMIT).replaceAll("\\s+","").split(",");
+                String[] startWithSize = keyDataMap.get(OperationKey.LIMIT).replaceAll("\\s+", "").split(",");
                 table.setStartRow(Integer.valueOf(startWithSize[0]));
                 if (startWithSize.length > 1) {
-                    table.setRowSize(Integer.valueOf(startWithSize[1]));
+                    table.setEndRow(table.getStartRow() + Integer.valueOf(startWithSize[1]));
                 }
             }
-            sheetConfig.addTable(table);
-            table.setSheetConfig(sheetConfig);
+            sheat.addTable(table);
+            table.setSheet(sheat);
         }
         return this;
     }
 
-
-    /**
-     * 添加命名的参数一个sheet
-     *
-     * @param toSheet
-     * @param tableIndex
-     * @param namedParameterMap
-     * @return this
-     */
-    public StandardReader addParameter(String toSheet, Integer tableIndex, Map<String, Object> namedParameterMap) {
-        Check.notEmpty(namedParameterMap, toSheet, tableIndex);
-        if (!sheetConfigMap.containsKey(toSheet)) {
-            throw new IllegalArgumentException("不存在的sheet : " + toSheet);
-        }
-        SheetConfig sheetConfig = sheetConfigMap.get(toSheet);
-        Table table = sheetConfig.getTableList().get(tableIndex);
-        table.setWhereParameter(namedParameterMap);
-        return this;
-    }
-
-    /**
-     * 添加占位符参数
-     *
-     * @param placeholderValues
-     * @return this
-     */
-    public StandardReader addParameter(String toSheet, Integer tableIndex, Object[] placeholderValues) {
-        return addParameter(toSheet, tableIndex, Arrays.asList(placeholderValues));
-    }
-
-    /**
-     * 添加占位符参数
-     *
-     * @param placeholderValues
-     * @return this
-     */
-    public StandardReader addParameter(String toSheet, Integer tableIndex, Collection placeholderValues) {
-        Check.notEmpty(toSheet, tableIndex, placeholderValues);
-        if (!sheetConfigMap.containsKey(toSheet)) {
-            throw new IllegalArgumentException("不存在的sheet : " + toSheet);
-        }
-        SheetConfig sheetConfig = sheetConfigMap.get(toSheet);
-        Table table = sheetConfig.getTableList().get(tableIndex);
-        Map placeholderValuesMap = new LinkedHashMap();
-        int index = 0;
-        for (Object placeholderValue : placeholderValues) {
-            placeholderValuesMap.put(index++, placeholderValue);
-        }
-        table.setWhereParameter(placeholderValuesMap);
-        return this;
-    }
-
-    /**
-     * 添加过滤器到Sheet上
-     *
-     * @param toSheet
-     * @param first
-     * @param second
-     * @param more
-     * @return this
-     */
-    public StandardReader addFilter(String toSheet, Filter first, Filter second, Filter... more) {
-        Check.notNull(first, second);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(first);
-        filters.add(second);
-        if (null != more) {
+    public StandardReader addFilter(String sheet, Integer tableIndex, Filter filter, Filter... more) {
+        List<Filter> filters = new ArrayList();
+        filters.add(filter);
+        if (null == more) {
             filters.addAll(Arrays.asList(more));
         }
-        return addFilter(toSheet, filters);
-
+        return addFilter(sheet, tableIndex, filters);
     }
 
-    /**
-     * 添加过滤器
-     *
-     * @param toSheet
-     * @param filter
-     * @return
-     */
-    public StandardReader addFilter(String toSheet, Filter filter) {
-        return addFilter(toSheet, Arrays.asList(filter));
+    public StandardReader addFilter(String sheet, Integer tableIndex, Filter[] filters) {
+        return addFilter(sheet, tableIndex, Arrays.asList(filters));
     }
 
-    /**
-     * 添加过滤器
-     *
-     * @param toSheet
-     * @param filters
-     * @return
-     */
-    public StandardReader addFilter(String toSheet, Filter[] filters) {
-        return addFilter(toSheet, Arrays.asList(filters));
-    }
-
-    /**
-     * 添加过滤器
-     *
-     * @param toSheet
-     * @param filters
-     * @return
-     */
-    public StandardReader addFilter(String toSheet, Collection<Filter> filters) {
+    public StandardReader addFilter(String sheet, Integer tableIndex, Collection<Filter> filters) {
         Check.notEmpty(filters);
-        if (!sheetConfigMap.containsKey(toSheet)) {
-            throw new IllegalArgumentException("不存在的sheet : " + toSheet);
+        if (!sheetConfigMap.containsKey(sheet)) {
+            throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        SheetConfig sheetConfig = sheetConfigMap.get(toSheet);
+        Sheet sheetConfig = sheetConfigMap.get(sheet);
+        Table table = sheetConfig.getTables().get(tableIndex);
+
         for (Filter filter : filters) {
             if (filter instanceof RowBeforeReadFilter) {
-                sheetConfig.addRowBeforeReadFilter((RowBeforeReadFilter) filter);
+                table.addRowBeforeReadFilter((RowBeforeReadFilter) filter);
                 continue;
             }
             if (filter instanceof RowAfterReadFilter) {
-                sheetConfig.addRowAfterReadFilter((RowAfterReadFilter) filter);
+                table.addRowAfterReadFilter((RowAfterReadFilter) filter);
                 continue;
             }
             if (filter instanceof CellBeforeReadFilter) {
-                sheetConfig.addCellBeforeReadFilter((CellBeforeReadFilter) filter);
+                table.addCellBeforeReadFilter((CellBeforeReadFilter) filter);
                 continue;
             }
             if (filter instanceof CellAfterReadFilter) {
-                sheetConfig.addCellAfterReadFilter((CellAfterReadFilter) filter);
+                table.addCellAfterReadFilter((CellAfterReadFilter) filter);
                 continue;
             }
-            throw new IllegalArgumentException("读取Excel不支持的过滤器类型: " + filter.getClass());
+            throw new IllegalArgumentException("读取Table不支持的过滤器类型: " + filter.getClass());
+        }
+        return this;
+    }
+
+    public StandardReader addFilter(String sheet, String pointKey, Collection<Filter> filters) {
+        Check.notEmpty(filters);
+        if (!sheetConfigMap.containsKey(sheet)) {
+            throw new IllegalArgumentException("不存在的sheet : " + sheet);
+        }
+        Sheet sheetConfig = sheetConfigMap.get(sheet);
+        Point point = sheetConfig.findPoint(pointKey);
+
+        for (Filter filter : filters) {
+            if (filter instanceof CellBeforeReadFilter) {
+                point.addBeforeReadFilter(filter);
+                continue;
+            }
+            if (filter instanceof CellAfterReadFilter) {
+                point.addAfterReadFilter(filter);
+                continue;
+            }
+            throw new IllegalArgumentException("读取Point不支持的过滤器类型: " + filter.getClass());
         }
         return this;
     }
@@ -297,9 +227,9 @@ public class StandardReader {
      * @return this
      */
     public Object execute() {
-        ExcelConfig excelConfig = new ExcelConfig();
-        excelConfig.setInput(input);
-        excelConfig.setSheetConfigs(sheetConfigMap.values());
+        Excel excel = new Excel();
+        excel.setInput(input);
+        excel.setSheets(new ArrayList<Sheet>(sheetConfigMap.values()));
         Workbook workbook = null;
         try {
             workbook = WorkbookFactory.create(input);
@@ -307,6 +237,6 @@ public class StandardReader {
             e.printStackTrace();
         }
         ExcelSupport support = new ExcelSupport();
-        return support.readExcel(workbook, excelConfig);
+        return support.readExcel(workbook, excel);
     }
 }

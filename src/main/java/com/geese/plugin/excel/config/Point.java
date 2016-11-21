@@ -7,7 +7,7 @@ package com.geese.plugin.excel.config;
  * @date 2016/11/16 15:58
  * @sine 0.0.1
  */
-public class Point {
+public class Point extends Filterable {
     /**
      * 行号
      */
@@ -24,9 +24,14 @@ public class Point {
     private String key;
 
     /**
+     * 数据
+     */
+    private Object data;
+
+    /**
      * 关联的sheet配置信息，把point当做是sheet中的一个散列点
      */
-    private SheetConfig sheetConfig;
+    private Sheet sheet;
 
     /**
      * 关联的table配置信息，把point当做是table中一行中的一列
@@ -57,12 +62,20 @@ public class Point {
         this.key = key;
     }
 
-    public SheetConfig getSheetConfig() {
-        return sheetConfig;
+    public Object getData() {
+        return data;
     }
 
-    public void setSheetConfig(SheetConfig sheetConfig) {
-        this.sheetConfig = sheetConfig;
+    public void setData(Object data) {
+        this.data = data;
+    }
+
+    public Sheet getSheet() {
+        return sheet;
+    }
+
+    public void setSheet(Sheet sheet) {
+        this.sheet = sheet;
     }
 
     public Table getTable() {
