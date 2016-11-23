@@ -71,6 +71,11 @@ public class StandardWriter {
     private OutputStream output;
 
     /**
+     * 当不存在模板的时候，使用什么格式创建excel
+     */
+    private boolean useXlsx = true;
+
+    /**
      * 写入Excel所需的Sheet配置信息
      */
     private Map<String, Sheet> sheetConfigMap;
@@ -86,8 +91,14 @@ public class StandardWriter {
 
     public static StandardWriter build(OutputStream output) {
         Check.notNull(output);
+        return build(output, true);
+    }
+
+    public static StandardWriter build(OutputStream output, boolean useXlsx) {
+        Check.notNull(output);
         StandardWriter writer = new StandardWriter();
         writer.output = output;
+        writer.useXlsx = useXlsx;
         return writer;
     }
 
@@ -281,16 +292,7 @@ public class StandardWriter {
         return this;
     }
 
-    /**
-     * 执行 Excel 写操作
-     *
-     * @return
-     */
     public StandardWriter execute() {
-        return execute(true);
-    }
-
-    public StandardWriter execute(boolean useXlsx) {
         Excel excel = new Excel();
         excel.setOutput(output);
         excel.setSheets(new ArrayList<>(sheetConfigMap.values()));

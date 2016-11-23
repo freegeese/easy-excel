@@ -1,8 +1,8 @@
 package com.geese.plugin.excel;
 
+import com.geese.plugin.excel.filter.Filter;
 import com.geese.plugin.excel.util.Check;
 import com.geese.plugin.excel.util.EmptyUtils;
-import com.geese.plugin.excel.filter.Filter;
 
 import java.io.InputStream;
 import java.util.*;
@@ -19,44 +19,20 @@ import java.util.*;
  */
 public class SimpleReader {
 
-    /**
-     * 读取excel时候的输入源
-     */
     private InputStream input;
 
-    /**
-     * 读取excel的查询语句
-     */
-    private String query;
+    private String tableQuery;
 
-    /**
-     * 读取哪个sheet表格
-     */
+    private String pointQuery;
+
     private String sheet;
 
-    /**
-     * 读取excel使用的where条件
-     */
-    private String where;
-
-    /**
-     * 读取excel的限制读取范围：开始行，行数
-     */
     private String limit;
 
-    /**
-     * 命名的参数数据
-     */
-    private Map namedParameterMap;
+    private List<Filter> tableFilters = new ArrayList<>();
 
-    /**
-     * 读取excel使用的过滤器
-     */
-    private Collection<Filter> filters;
+    private Map<String, List<Filter>> pointFiltersMap = new HashMap<>();
 
-    /**
-     * 如果没有指定读取的sheet，默认读取第0个
-     */
     public SimpleReader() {
         this.sheet = "0";
     }
@@ -70,7 +46,18 @@ public class SimpleReader {
 
     public SimpleReader select(String query) {
         Check.notEmpty(query);
-        this.query = query;
+        if (query.trim().startsWith("\\{")) {
+            this.pointQuery = query;
+        } else {
+            this.tableQuery = query;
+        }
+        return this;
+    }
+
+    public SimpleReader select(String tableQuery, String pointQuery) {
+        Check.notEmpty(tableQuery, pointQuery);
+        this.tableQuery = tableQuery;
+        this.pointQuery = pointQuery;
         return this;
     }
 
@@ -80,74 +67,43 @@ public class SimpleReader {
         return this;
     }
 
-    public SimpleReader where(String where) {
-        Check.notEmpty(where);
-        this.where = where;
-        return this;
-    }
-
-    /**
-     * 添加命名的参数一个sheet
-     *
-     * @param namedParameterMap
-     * @return this
-     */
-    public SimpleReader addParameter(Map<String, Object> namedParameterMap) {
-        Check.notEmpty(namedParameterMap);
-        this.namedParameterMap = namedParameterMap;
-        return this;
-    }
-
-    /**
-     * 添加占位符参数
-     *
-     * @param placeholderValues
-     * @return this
-     */
-    public SimpleReader addParameter(Object[] placeholderValues) {
-        return addParameter(Arrays.asList(placeholderValues));
-    }
-
-    /**
-     * 添加占位符参数
-     *
-     * @param placeholderValues
-     * @return this
-     */
-    public SimpleReader addParameter(Collection placeholderValues) {
-        Check.notEmpty(placeholderValues);
-        Map placeholderValueMap = new LinkedHashMap();
-        int index = 0;
-        for (Object placeholderValue : placeholderValues) {
-            placeholderValueMap.put(index++, placeholderValue);
-        }
-        this.namedParameterMap = placeholderValueMap;
-        return this;
-    }
-
-    public SimpleReader addFilter(Filter first, Filter second, Filter... more) {
-        Check.notNull(first, second);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(first);
-        filters.add(second);
-        if (null != more) {
-            filters.addAll(Arrays.asList(more));
-        }
-        return addFilter(filters);
-
-    }
-
     public SimpleReader addFilter(Filter filter) {
-        return addFilter(Arrays.asList(filter));
+        Check.notNull(filter);
+        tableFilters.add(filter);
+        return this;
     }
+
 
     public SimpleReader addFilter(Filter[] filters) {
+        Check.notEmpty(filters);
         return addFilter(Arrays.asList(filters));
     }
 
     public SimpleReader addFilter(Collection<Filter> filters) {
         Check.notEmpty(filters);
-        this.filters = filters;
+        tableFilters.addAll(filters);
+        return this;
+    }
+
+    public SimpleReader addFilter(String pointKey, Filter filter) {
+        Check.notEmpty(pointKey, filter);
+        return addFilter(pointKey, Arrays.asList(filter));
+    }
+
+
+    public SimpleReader addFilter(String pointKey, Filter[] filters) {
+        Check.notEmpty(pointKey, filters);
+        return addFilter(Arrays.asList(filters));
+    }
+
+    public SimpleReader addFilter(String pointKey, Collection<Filter> filters) {
+        Check.notEmpty(pointKey, filters);
+        List<Filter> values = pointFiltersMap.get(pointKey);
+        if (null == values) {
+            values = new ArrayList<>();
+            pointFiltersMap.put(pointKey, values);
+        }
+        values.addAll(values);
         return this;
     }
 
@@ -165,24 +121,36 @@ public class SimpleReader {
 
     public Collection execute() {
         // 拼接query语句 query + from + where + limit
-        String query = String.valueOf(this.query);
-        query += " from " + this.sheet;
-        if (null != where) {
-            query += " where " + this.where;
+        String tableQuery = null;
+        if (EmptyUtils.notEmpty(this.tableQuery)) {
+            tableQuery = String.valueOf(this.tableQuery);
+            tableQuery += " from " + this.sheet;
+            if (null != limit) {
+                tableQuery += " limit " + this.limit;
+            }
         }
-        if (null != limit) {
-            query += " limit " + this.limit;
-        }
+
         // 构建一个标准的Reader
-        StandardReader reader = StandardReader.build(input).select(query);
-        // 参数
-        if (EmptyUtils.notEmpty(namedParameterMap)) {
-            reader.addParameter(this.sheet, 0, namedParameterMap);
+        StandardReader reader = StandardReader.build(input);
+        if (EmptyUtils.notEmpty(tableQuery) && EmptyUtils.notEmpty(this.pointQuery)) {
+            reader.select(tableQuery, this.pointQuery);
+        } else if (EmptyUtils.notEmpty(tableQuery)) {
+            reader.select(tableQuery);
+        } else {
+            reader.select(this.pointQuery);
         }
-        // 过滤器
-        if (EmptyUtils.notEmpty(filters)) {
-            reader.addFilter(this.sheet, filters);
+
+        // 表格过滤器
+        if (!tableFilters.isEmpty()) {
+            reader.addFilter(this.sheet, 0, tableFilters);
         }
+        // 散列点过滤器
+        if (!pointFiltersMap.isEmpty()) {
+            for (Map.Entry<String, List<Filter>> entry : pointFiltersMap.entrySet()) {
+                reader.addFilter(this.sheet, entry.getKey(), entry.getValue());
+            }
+        }
+
         Map result = (Map) reader.execute();
         if (EmptyUtils.notEmpty(result)) {
             Map tableDataMap = (Map) result.values().iterator().next();
