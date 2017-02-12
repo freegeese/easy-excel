@@ -209,7 +209,8 @@ public class ExcelHelper {
         // 执行脚本
         try {
             System.out.println("解析后的where:" + parsedWhere + ", 绑定的参数：" + new LinkedHashMap(bindings));
-            return true == engine.eval(parsedWhere, bindings);
+
+            return true == Boolean.valueOf(engine.eval(parsedWhere, bindings).toString());
         } catch (ScriptException e) {
             // TODO where 脚本解析异常处理
             e.printStackTrace();

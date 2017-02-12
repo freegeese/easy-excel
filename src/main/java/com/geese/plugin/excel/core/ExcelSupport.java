@@ -126,7 +126,7 @@ public class ExcelSupport implements ExcelOperation {
         if (EmptyUtils.notEmpty(tableList)) {
             List<Object> tableDataList = new ArrayList<>();
             for (Table table : tableList) {
-                tableDataList.add(readTable(sheet, table, config));
+                tableDataList.add(readTable(sheet, table));
             }
             sheetData.put("tableDataList", tableDataList);
         }
@@ -149,14 +149,15 @@ public class ExcelSupport implements ExcelOperation {
         List<Table> tableList = config.getTables();
         if (EmptyUtils.notEmpty(tableList)) {
             for (Table table : tableList) {
-                writeTable(sheet, table, config);
+                writeTable(sheet, table);
             }
         }
         // Point 处理
         List<Point> points = config.getPoints();
         if (EmptyUtils.notEmpty(points)) {
             // TODO: 2016/11/13 将index point data -> named point data
-            Map pointDataMap = config.getPointData();
+//            Map pointDataMap = config.getPointData();
+            Map pointDataMap = new HashMap();
             for (Point point : points) {
                 String key = point.getKey();
                 if (!pointDataMap.containsKey(key)) {
@@ -175,29 +176,37 @@ public class ExcelSupport implements ExcelOperation {
      *
      * @param sheet
      * @param table
-     * @param sheat
      */
-    private void writeTable(org.apache.poi.ss.usermodel.Sheet sheet, Table table, Sheet sheat) {
+    private void writeTable(org.apache.poi.ss.usermodel.Sheet sheet, Table table) {
         List tableData = new ArrayList<>(table.getData());
         // 开始行
         Integer startRow = table.getStartRow();
         startRow = (null == startRow) ? 0 : startRow;
-        // 行数
-        Integer rowSize = table.getRowSize();
         // 结束行
-        Integer endRow = (null == rowSize) ? (startRow + tableData.size()) : (startRow + rowSize);
+        Integer endRow = table.getEndRow();
+        if (null == endRow) {
+            endRow = startRow + table.getData().size();
+        }
+
         // 写入行之前的过滤链
-        FilterChain chain = sheat.getRowWriteFilterChain();
+        FilterChain rowBeforeWriteFilterChain = table.getRowBeforeWriteFilterChain();
+        // 写入行之后的过滤链
+        FilterChain rowAfterWriteFilterChain = table.getRowAfterWriteFilterChain();
 
         int dataIndex = 0;
         for (int i = startRow; i < endRow; i++) {
             Row row = ExcelHelper.createRow(sheet, i);
             Object rowData = tableData.get(dataIndex++);
             // 写row之前过滤
-            if (null != chain) {
-                chain.doFilter(row, rowData, table);
+            if (null != rowBeforeWriteFilterChain) {
+                rowBeforeWriteFilterChain.doFilter(row, rowData, table);
             }
+            // 写入到excel
             writeRow(row, rowData, table);
+            // 写row之后过滤
+            if (null != rowAfterWriteFilterChain) {
+                rowAfterWriteFilterChain.doFilter(row, rowData, table);
+            }
         }
     }
 
@@ -206,20 +215,21 @@ public class ExcelSupport implements ExcelOperation {
      *
      * @param sheet
      * @param table
-     * @param sheat
      * @return
      */
-    private List readTable(org.apache.poi.ss.usermodel.Sheet sheet, Table table, Sheet sheat) {
+    private List readTable(org.apache.poi.ss.usermodel.Sheet sheet, Table table) {
         // 开始行
         Integer startRow = table.getStartRow();
-        // 行数
-        Integer rowSize = table.getRowSize();
         // 结束行
-        Integer endRow = (null == rowSize) ? sheet.getLastRowNum() : (startRow + rowSize - 1);
+        Integer endRow = table.getEndRow();
+        if (null == endRow) {
+            endRow = sheet.getLastRowNum();
+        }
+
         // 读取行之前的过滤链
-        FilterChain rowBeforeReadFilterChain = sheat.getRowBeforeReadFilterChain();
+        FilterChain rowBeforeReadFilterChain = table.getRowBeforeReadFilterChain();
         // 读取行之后的过滤链
-        FilterChain rowAfterReadFilterChain = sheat.getRowAfterReadFilterChain();
+        FilterChain rowAfterReadFilterChain = table.getRowAfterReadFilterChain();
         List tableData = new ArrayList();
         for (int i = startRow; i <= endRow; i++) {
             Row row = sheet.getRow(i);
@@ -227,25 +237,12 @@ public class ExcelSupport implements ExcelOperation {
             if (null == row) {
                 continue;
             }
-
             // 读row之前过滤
             if (null != rowBeforeReadFilterChain) {
                 rowBeforeReadFilterChain.doFilter(row, null, table);
             }
-
             // 读row
             Object rowData = readRow(row, table);
-
-            // where 过滤
-            String where = table.getWhere();
-            if (EmptyUtils.notEmpty(where)) {
-                if (rowData instanceof Map) {
-                    if (!ExcelHelper.whereFilter(where, (Map) rowData, table.getWhereParameter())) {
-                        continue;
-                    }
-                }
-            }
-
             // 读row之后过滤
             if (null != rowAfterReadFilterChain) {
                 rowAfterReadFilterChain.doFilter(row, rowData, table);
@@ -257,10 +254,8 @@ public class ExcelSupport implements ExcelOperation {
 
     @Override
     public Object readRow(Row row, Table table) {
-        Sheet sheet = table.getSheet();
-        FilterChain cellBeforeReadFilterChain = sheet.getCellBeforeReadFilterChain();
-        FilterChain cellAfterReadFilterChain = sheet.getCellAfterReadFilterChain();
-
+        FilterChain cellBeforeReadFilterChain = table.getCellBeforeReadFilterChain();
+        FilterChain cellAfterReadFilterChain = table.getCellAfterReadFilterChain();
         Map rowData = new HashMap();
         for (Point point : table.getColumns()) {
             // TODO 异常处理 cell == null
@@ -286,16 +281,23 @@ public class ExcelSupport implements ExcelOperation {
     public void writeRow(Row row, Object value, Table table) {
         // 键值对类型数据
         if (Map.class.isAssignableFrom(value.getClass())) {
-            FilterChain chain = table.getSheet().getCellWriteFilterChain();
+            FilterChain cellBeforeWriteFilterChain = table.getCellBeforeWriteFilterChain();
+            FilterChain cellAfterWriteFilterChain = table.getCellAfterWriteFilterChain();
+
             Map rowValue = (Map) value;
             for (Point point : table.getColumns()) {
                 Cell cell = ExcelHelper.createCell(row, point.getY());
                 Object cellValue = rowValue.get(point.getKey());
                 // 写入列之前过滤
-                if (null != chain) {
-                    chain.doFilter(cell, cellValue, point);
+                if (null != cellBeforeWriteFilterChain) {
+                    cellBeforeWriteFilterChain.doFilter(cell, cellValue, point);
                 }
+                // 写入到excel
                 writeCell(cell, cellValue, point);
+                // 写入列之后过滤
+                if (null != cellAfterWriteFilterChain) {
+                    cellAfterWriteFilterChain.doFilter(cell, cellValue, point);
+                }
             }
             return;
         }

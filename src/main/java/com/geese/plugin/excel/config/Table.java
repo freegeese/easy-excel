@@ -227,4 +227,68 @@ public class Table extends Filterable {
         }
         cellAfterWriteFilterChain.addFilters(filters);
     }
+
+    public FilterChain getRowBeforeReadFilterChain() {
+        return rowBeforeReadFilterChain;
+    }
+
+    public void setRowBeforeReadFilterChain(FilterChain rowBeforeReadFilterChain) {
+        this.rowBeforeReadFilterChain = rowBeforeReadFilterChain;
+    }
+
+    public FilterChain getRowAfterReadFilterChain() {
+        return rowAfterReadFilterChain;
+    }
+
+    public void setRowAfterReadFilterChain(FilterChain rowAfterReadFilterChain) {
+        this.rowAfterReadFilterChain = rowAfterReadFilterChain;
+    }
+
+    public FilterChain getRowBeforeWriteFilterChain() {
+        return rowBeforeWriteFilterChain;
+    }
+
+    public void setRowBeforeWriteFilterChain(FilterChain rowBeforeWriteFilterChain) {
+        this.rowBeforeWriteFilterChain = rowBeforeWriteFilterChain;
+    }
+
+    public FilterChain getRowAfterWriteFilterChain() {
+        return rowAfterWriteFilterChain;
+    }
+
+    public void setRowAfterWriteFilterChain(FilterChain rowAfterWriteFilterChain) {
+        this.rowAfterWriteFilterChain = rowAfterWriteFilterChain;
+    }
+
+    public FilterChain getCellBeforeReadFilterChain() {
+        return cellBeforeReadFilterChain;
+    }
+
+    public void setCellBeforeReadFilterChain(FilterChain cellBeforeReadFilterChain) {
+        this.cellBeforeReadFilterChain = cellBeforeReadFilterChain;
+    }
+
+    public FilterChain getCellAfterReadFilterChain() {
+        return cellAfterReadFilterChain;
+    }
+
+    public void setCellAfterReadFilterChain(FilterChain cellAfterReadFilterChain) {
+        this.cellAfterReadFilterChain = cellAfterReadFilterChain;
+    }
+
+    public FilterChain getCellBeforeWriteFilterChain() {
+        return cellBeforeWriteFilterChain;
+    }
+
+    public void setCellBeforeWriteFilterChain(FilterChain cellBeforeWriteFilterChain) {
+        this.cellBeforeWriteFilterChain = cellBeforeWriteFilterChain;
+    }
+
+    public FilterChain getCellAfterWriteFilterChain() {
+        return cellAfterWriteFilterChain;
+    }
+
+    public void setCellAfterWriteFilterChain(FilterChain cellAfterWriteFilterChain) {
+        this.cellAfterWriteFilterChain = cellAfterWriteFilterChain;
+    }
 }

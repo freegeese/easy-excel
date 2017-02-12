@@ -63,45 +63,6 @@ public class StandardWriterTest {
                 .execute();
     }
 
-    /**
-     * 实例11：可选配置项
-     */
-    @Test
-    public void test002() {
-        // 准备表格数据
-        List tableData = new ArrayList();
-        Map rowData;
-        for (int i = 0; i < 50; i++) {
-            rowData = new HashMap();
-            rowData.put("name", "隔壁老王" + i);
-            rowData.put("age", Double.valueOf((Math.random() * 100)).intValue());
-            rowData.put("idCard", Double.valueOf((Math.random() * 1000000000)).longValue());
-            rowData.put("qq", Double.valueOf((Math.random() * 100000000)).longValue());
-            rowData.put("email", Double.valueOf((Math.random() * 1000000)).longValue() + "@qq.com");
-            rowData.put("phone", Double.valueOf((Math.random() * 1000000000)).longValue());
-            tableData.add(rowData);
-        }
-        // 把数据插入到excel对应的位置
-        StandardWriter
-                // template: 使用模板来接收写入的数据
-                .build(output, template)
-                // limit:[startRow, size] 从哪行开始写，写多少行 默认：[0, tableData.size()]
-                .insert("0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone into Sheet1 limit 1, 30")
-                // filter: 在数据写入到row或cell之前，可以对数据进行过滤修改, 过滤器需要绑定到某个Sheet上执行
-                .addFilter("Sheet1", new RowBeforeWriteFilter() {
-                    @Override
-                    public void doFilter(Row target, Object data, Table config) {
-                        System.out.println("<<<<<<<<<<<<写入Row之前过滤：" + data + ">>>>>>>>>>>");
-                    }
-                }, new CellBeforeWriteFilter() {
-                    @Override
-                    public void doFilter(Cell target, Object data, Point config) {
-                        System.out.println("<<<<<<<<<<<<写入Cell之前过滤：" + data + ">>>>>>>>>>>");
-                    }
-                })
-                .addData("Sheet1", 0, tableData)
-                .execute();
-    }
 
     /**
      * 实例3：列表 + 散列点

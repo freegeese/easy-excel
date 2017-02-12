@@ -79,65 +79,6 @@ public class StandardReaderTest {
     }
 
     /**
-     * 实例2：可选配置
-     */
-    @Test
-    public void test002() {
-        StandardReader
-                .build(input)
-                // limit: [startRow, size] 从哪行开始读，读取多少行
-                .select("0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone from 0 limit 0, 10")
-                // 绑定过滤器到一个sheet上
-                .addFilter("0", new RowBeforeReadFilter() {
-                    @Override
-                    public void doFilter(Row target, Object data, Table config) {
-                        System.out.println("<><><><><><><>读取Row之前过滤：" + data + "<><><><><><><>");
-                    }
-                }, new RowAfterReadFilter() {
-                    @Override
-                    public void doFilter(Row target, Object data, Table config) {
-                        System.out.println("<><><><><><><>读取Row之后过滤：" + data + "<><><><><><><>");
-                    }
-                }, new CellBeforeReadFilter() {
-                    @Override
-                    public void doFilter(Cell target, Object data, Point config) {
-                        System.out.println("<><><><><><><>读取Cell之前过滤：" + data + "<><><><><><><>");
-                    }
-                }, new CellAfterReadFilter() {
-                    @Override
-                    public void doFilter(Cell target, Object data, Point config) {
-                        System.out.println("<><><><><><><>读取Cell之后过滤：" + data + "<><><><><><><>");
-                    }
-                })
-                .execute();
-    }
-
-    /**
-     * 实例3：where 条件过滤
-     */
-    @Test
-    public void test003() {
-        Map namedParameter = new HashMap();
-        namedParameter.put("name", "鲁%");
-        namedParameter.put("age", 20);
-        namedParameter.put("qq", "%12%");
-        namedParameter.put("names", Arrays.asList("张馨蓉", "张白萱", "张若云"));
-        Object result = StandardReader
-                .build(input)
-                // where 条件过滤，支持占位符和命名参数
-                .select(
-                        "0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone from 0 where name like ? and (age > ? or qq like ? or name in ?)",
-                        "0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone from 1 where name like :name and (age > :age or qq like :qq or name in :names)"
-                )
-                // 添加占位符参数
-                .addParameter("0", 0, Arrays.asList("鲁%", 20, "%12%", Arrays.asList("张馨蓉", "张白萱", "张若云")))
-                // 添加命名的参数
-                .addParameter("1", 0, namedParameter)
-                .execute();
-        System.out.println(result);
-    }
-
-    /**
      * 实例4：散列点
      */
     @Test
