@@ -97,7 +97,8 @@ public class ExcelHelper {
             case Cell.CELL_TYPE_BOOLEAN:
                 return cell.getBooleanCellValue();
             case Cell.CELL_TYPE_FORMULA:
-                return cell.getCellFormula();
+//                return cell.getCellFormula();
+                return cell.getNumericCellValue();
             case Cell.CELL_TYPE_BLANK:
                 return null;
             default:
