@@ -1,8 +1,8 @@
 package com.geese.plugin.excel;
 
 import com.geese.plugin.excel.config.Excel;
+import com.geese.plugin.excel.config.MySheet;
 import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Sheet;
 import com.geese.plugin.excel.config.Table;
 import com.geese.plugin.excel.core.ExcelHelper;
 import com.geese.plugin.excel.core.ExcelSupport;
@@ -65,7 +65,7 @@ public class StandardReader {
     /**
      * 读取excel所需的sheet配置信息
      */
-    private Map<String, Sheet> sheetConfigMap;
+    private Map<String, MySheet> sheetConfigMap;
 
     public StandardReader() {
         this.sheetConfigMap = new LinkedHashMap();
@@ -100,9 +100,9 @@ public class StandardReader {
                 query = query.replaceAll("\\{|\\}", "");
                 Map<OperationKey, String> keyDataMap = ExcelHelper.selectKeyParse(query);
                 String sheet = keyDataMap.get(OperationKey.FROM);
-                Sheet sheat = sheetConfigMap.get(sheet);
+                MySheet sheat = sheetConfigMap.get(sheet);
                 if (null == sheat) {
-                    sheat = new Sheet();
+                    sheat = new MySheet();
                     ExcelHelper.setSheet(sheet, sheat);
                     sheetConfigMap.put(sheet, sheat);
                 }
@@ -115,7 +115,7 @@ public class StandardReader {
                     point.setY(Integer.valueOf(items[1]));
                     point.setKey(items[2]);
                     sheat.addPoint(point);
-                    point.setSheet(sheat);
+                    point.setMySheet(sheat);
                 }
                 continue;
             }
@@ -123,9 +123,9 @@ public class StandardReader {
             Map<OperationKey, String> keyDataMap = ExcelHelper.selectKeyParse(query);
             // from sheet
             String sheet = keyDataMap.get(OperationKey.FROM);
-            Sheet sheat = sheetConfigMap.get(sheet);
+            MySheet sheat = sheetConfigMap.get(sheet);
             if (null == sheat) {
-                sheat = new Sheet();
+                sheat = new MySheet();
                 ExcelHelper.setSheet(sheet, sheat);
                 sheetConfigMap.put(sheet, sheat);
             }
@@ -151,7 +151,7 @@ public class StandardReader {
                 }
             }
             sheat.addTable(table);
-            table.setSheet(sheat);
+            table.setMySheet(sheat);
         }
         return this;
     }
@@ -174,8 +174,8 @@ public class StandardReader {
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        Sheet sheetConfig = sheetConfigMap.get(sheet);
-        Table table = sheetConfig.getTables().get(tableIndex);
+        MySheet mySheet = sheetConfigMap.get(sheet);
+        Table table = mySheet.getTables().get(tableIndex);
 
         for (Filter filter : filters) {
             if (filter instanceof RowBeforeReadFilter) {
@@ -194,6 +194,14 @@ public class StandardReader {
                 table.addCellAfterReadFilter((CellAfterReadFilter) filter);
                 continue;
             }
+            if (filter instanceof SheetBeforeReadFilter) {
+                mySheet.addBeforeReadFilter(filter);
+                continue;
+            }
+            if (filter instanceof SheetAfterReadFilter) {
+                mySheet.addAfterReadFilter(filter);
+                continue;
+            }
             throw new IllegalArgumentException("读取Table不支持的过滤器类型: " + filter.getClass());
         }
         return this;
@@ -204,8 +212,8 @@ public class StandardReader {
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        Sheet sheetConfig = sheetConfigMap.get(sheet);
-        Point point = sheetConfig.findPoint(pointKey);
+        MySheet mySheetConfig = sheetConfigMap.get(sheet);
+        Point point = mySheetConfig.findPoint(pointKey);
 
         for (Filter filter : filters) {
             if (filter instanceof CellBeforeReadFilter) {
@@ -229,7 +237,7 @@ public class StandardReader {
     public Object execute() {
         Excel excel = new Excel();
         excel.setInput(input);
-        excel.setSheets(new ArrayList<Sheet>(sheetConfigMap.values()));
+        excel.setMySheets(new ArrayList<MySheet>(sheetConfigMap.values()));
         Workbook workbook = null;
         try {
             workbook = WorkbookFactory.create(input);

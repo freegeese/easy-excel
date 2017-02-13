@@ -1,5 +1,6 @@
 package com.geese.plugin.excel.filter;
 
+import com.geese.plugin.excel.config.MySheet;
 import org.apache.poi.ss.usermodel.Sheet;
 
 /**
@@ -9,5 +10,5 @@ import org.apache.poi.ss.usermodel.Sheet;
  * @date 2016/11/21 22:15
  * @sine 0.0.2
  */
-public interface SheetBeforeReadFilter extends SheetFilter<Sheet, com.geese.plugin.excel.config.Sheet> {
+public interface SheetBeforeReadFilter extends SheetFilter<Sheet, MySheet> {
 }

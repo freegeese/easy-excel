@@ -37,7 +37,7 @@ public class Table extends Filterable {
     /**
      * table配置关联的sheet配置信息
      */
-    private Sheet sheet;
+    private MySheet mySheet;
 
     private FilterChain rowBeforeReadFilterChain;
 
@@ -108,12 +108,12 @@ public class Table extends Filterable {
         this.data = data;
     }
 
-    public Sheet getSheet() {
-        return sheet;
+    public MySheet getMySheet() {
+        return mySheet;
     }
 
-    public void setSheet(Sheet sheet) {
-        this.sheet = sheet;
+    public void setMySheet(MySheet mySheet) {
+        this.mySheet = mySheet;
     }
 
     public void addRowBeforeReadFilter(RowBeforeReadFilter filter) {

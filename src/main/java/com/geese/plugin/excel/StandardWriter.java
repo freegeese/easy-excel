@@ -1,8 +1,8 @@
 package com.geese.plugin.excel;
 
 import com.geese.plugin.excel.config.Excel;
+import com.geese.plugin.excel.config.MySheet;
 import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Sheet;
 import com.geese.plugin.excel.config.Table;
 import com.geese.plugin.excel.core.ExcelHelper;
 import com.geese.plugin.excel.core.ExcelSupport;
@@ -78,7 +78,7 @@ public class StandardWriter {
     /**
      * 写入Excel所需的Sheet配置信息
      */
-    private Map<String, Sheet> sheetConfigMap;
+    private Map<String, MySheet> sheetConfigMap;
 
     /**
      * 写入Excel时使用的模板
@@ -141,9 +141,9 @@ public class StandardWriter {
                 insert = insert.replaceAll("\\{|\\}", "");
                 Map<OperationKey, String> keyDataMap = ExcelHelper.insertKeyParse(insert);
                 String sheet = keyDataMap.get(OperationKey.INTO);
-                Sheet sheat = sheetConfigMap.get(sheet);
+                MySheet sheat = sheetConfigMap.get(sheet);
                 if (null == sheat) {
-                    sheat = new Sheet();
+                    sheat = new MySheet();
                     ExcelHelper.setSheet(sheet, sheat);
                     sheetConfigMap.put(sheet, sheat);
                 }
@@ -156,7 +156,7 @@ public class StandardWriter {
                     point.setY(Integer.valueOf(items[1]));
                     point.setKey(items[2]);
                     sheat.addPoint(point);
-                    point.setSheet(sheat);
+                    point.setMySheet(sheat);
                 }
                 continue;
             }
@@ -165,9 +165,9 @@ public class StandardWriter {
             Map<OperationKey, String> keyDataMap = ExcelHelper.insertKeyParse(insert);
             // into sheet
             String sheet = keyDataMap.get(OperationKey.INTO);
-            Sheet sheat = sheetConfigMap.get(sheet);
+            MySheet sheat = sheetConfigMap.get(sheet);
             if (null == sheat) {
-                sheat = new Sheet();
+                sheat = new MySheet();
                 ExcelHelper.setSheet(sheet, sheat);
                 sheetConfigMap.put(sheet, sheat);
             }
@@ -194,7 +194,7 @@ public class StandardWriter {
             }
 
             sheat.addTable(table);
-            table.setSheet(sheat);
+            table.setMySheet(sheat);
         }
         return this;
     }
@@ -212,8 +212,8 @@ public class StandardWriter {
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        Sheet sheetConfig = sheetConfigMap.get(sheet);
-        Table table = sheetConfig.getTables().get(tableIndex);
+        MySheet mySheetConfig = sheetConfigMap.get(sheet);
+        Table table = mySheetConfig.getTables().get(tableIndex);
         table.setData(tableData);
         return this;
     }
@@ -230,10 +230,10 @@ public class StandardWriter {
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        Sheet sheetConfig = sheetConfigMap.get(sheet);
+        MySheet mySheetConfig = sheetConfigMap.get(sheet);
         Set<String> keys = pointData.keySet();
         for (String key : keys) {
-            Point point = sheetConfig.findPoint(key);
+            Point point = mySheetConfig.findPoint(key);
             Check.notNull(point, "找不到：[" + key + "] 对应的point");
             point.setData(pointData.get(key));
         }
@@ -245,8 +245,8 @@ public class StandardWriter {
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        Sheet sheetConfig = sheetConfigMap.get(sheet);
-        Table table = sheetConfig.getTables().get(tableIndex);
+        MySheet mySheetConfig = sheetConfigMap.get(sheet);
+        Table table = mySheetConfig.getTables().get(tableIndex);
 
         for (Filter filter : filters) {
             if (filter instanceof RowBeforeWriteFilter) {
@@ -275,8 +275,8 @@ public class StandardWriter {
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        Sheet sheetConfig = sheetConfigMap.get(sheet);
-        Point point = sheetConfig.findPoint(pointKey);
+        MySheet mySheetConfig = sheetConfigMap.get(sheet);
+        Point point = mySheetConfig.findPoint(pointKey);
 
         for (Filter filter : filters) {
             if (filter instanceof CellBeforeWriteFilter) {
@@ -295,7 +295,7 @@ public class StandardWriter {
     public StandardWriter execute() {
         Excel excel = new Excel();
         excel.setOutput(output);
-        excel.setSheets(new ArrayList<>(sheetConfigMap.values()));
+        excel.setMySheets(new ArrayList<>(sheetConfigMap.values()));
         // 存在模板，优先使用模板
         Workbook workbook;
         if (null != template) {

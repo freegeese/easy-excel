@@ -16,6 +16,6 @@ public interface Filter<T, M> {
      * @param data   当过滤 write 操作的时候传入的数据，如果是read过滤，data为null
      * @param config 当过滤 row 时，可以拿到 row 所在的 table 配置信息, 当过滤 cell 时，可以拿到 cell 的配置信息
      */
-    void doFilter(T target, Object data, M config);
+    boolean doFilter(T target, Object data, M config);
 
 }

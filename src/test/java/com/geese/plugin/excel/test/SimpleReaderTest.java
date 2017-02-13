@@ -1,22 +1,18 @@
 package com.geese.plugin.excel.test;
 
-import com.geese.plugin.excel.core.ExcelHelper;
-import com.geese.plugin.excel.filter.CellAfterReadFilter;
-import com.geese.plugin.excel.filter.RowAfterReadFilter;
+import com.geese.plugin.excel.config.MySheet;
+import com.geese.plugin.excel.filter.*;
 import com.geese.plugin.excel.SimpleReader;
-import com.geese.plugin.excel.SimpleWriter;
 import com.geese.plugin.excel.config.Point;
 import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellBeforeReadFilter;
-import com.geese.plugin.excel.filter.RowBeforeReadFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -35,7 +31,7 @@ public class SimpleReaderTest {
 
     @BeforeClass
     public static void beforeClass() throws IOException {
-        URL url = Thread.currentThread().getContextClassLoader().getResource("demo-reader.xlsx");
+        URL url = Thread.currentThread().getContextClassLoader().getResource("demo-mocai-reader.xlsx");
 //        // 准备数据
 //        // Excel 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
 //        // 准备数据, 每一行是一个Map, 每一个表格是一个List<Map>
@@ -98,24 +94,54 @@ public class SimpleReaderTest {
     }
 
     @Test
-    public void test003(){
+    public void test003() {
         SimpleReader.build(input)
-                .select("0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone")
-                .limit(3)
+                .select("7 thick, 8 width, 9 length, 10 weight, 11 unitWeight")
+                .limit(3, 2)
+                .addFilter(new CellBeforeReadFilter() {
+                    @Override
+                    public boolean doFilter(Cell target, Object data, Point config) {
+                        System.out.println("+++++++++++" + target.getRowIndex() + ":" + target.getColumnIndex() + "++++++++++");
+                        return true;
+                    }
+                })
+                .addFilter(new CellAfterReadFilter() {
+                    @Override
+                    public boolean doFilter(Cell target, Object data, Point config) {
+                        System.out.println(data);
+                        return true;
+                    }
+                })
+                .addFilter(new RowBeforeReadFilter() {
+                    @Override
+                    public boolean doFilter(Row target, Object data, Table config) {
+                        System.out.println("+++++++++++++" + target.getRowNum() + "+++++++++++++");
+                        return true;
+                    }
+                })
                 .addFilter(new RowAfterReadFilter() {
                     @Override
-                    public void doFilter(Row target, Object data, Table config) {
-                        Iterator<Cell> cellIterator = target.cellIterator();
-                        while(cellIterator.hasNext()){
-                            Object cellValue = ExcelHelper.getCellValue(cellIterator.next());
-                            System.out.print(cellValue + ", ");
-                        }
-                        System.out.println();
+                    public boolean doFilter(Row target, Object data, Table config) {
+                        System.out.println(data);
+                        return true;
+                    }
+                })
+                .addFilter(new SheetBeforeReadFilter() {
+                    @Override
+                    public boolean doFilter(Sheet target, Object data, MySheet config) {
+                        System.out.println("++++++++" + target.getSheetName() + "++++++++");
+                        return true;
+                    }
+                })
+                .addFilter(new SheetAfterReadFilter() {
+                    @Override
+                    public boolean doFilter(Sheet target, Object data, MySheet config) {
+                        System.out.println(data);
+                        return false;
                     }
                 })
                 .execute();
     }
-
 
 
 }

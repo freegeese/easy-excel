@@ -5,13 +5,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Sheet 配置信息
+ * MySheet 配置信息
  *
  * @author zhangguangyong <a href="#">1243610991@qq.com</a>
  * @date 2016/11/16 15:59
  * @sine 0.0.1
  */
-public class Sheet extends Filterable {
+public class MySheet extends Filterable {
     /**
      * 映射真实sheet的索引
      */
@@ -32,7 +32,7 @@ public class Sheet extends Filterable {
      */
     private List<Point> points;
 
-    public Sheet addTable(Table table) {
+    public MySheet addTable(Table table) {
         if (null == this.tables) {
             this.tables = new ArrayList<>();
         }
@@ -40,7 +40,7 @@ public class Sheet extends Filterable {
         return this;
     }
 
-    public Sheet addTables(Collection<Table> tables) {
+    public MySheet addTables(Collection<Table> tables) {
         if (null == this.tables) {
             this.tables = new ArrayList<>();
         }
@@ -48,7 +48,7 @@ public class Sheet extends Filterable {
         return this;
     }
 
-    public Sheet addPoint(Point point) {
+    public MySheet addPoint(Point point) {
         if (null == this.points) {
             this.points = new ArrayList<>();
         }
@@ -56,7 +56,7 @@ public class Sheet extends Filterable {
         return this;
     }
 
-    public Sheet addPoints(Collection<Point> points) {
+    public MySheet addPoints(Collection<Point> points) {
         if (null == this.points) {
             this.points = new ArrayList<>();
         }

@@ -18,7 +18,7 @@
 
     <!-- excel -->
     <excel id="excel001" template="classpath:path/to/excel/template">
-        <sheet key="userSheet" index="0" name="Sheet1">
+        <mySheet key="userSheet" index="0" name="Sheet1">
             <table key="" class="" limit="" filters="filter001,filters001">
                 <column y="1" key="column1"/>
                 <column y="2" key="column2"/>
@@ -29,8 +29,8 @@
             </table>
             <point x="0" y="5" key="point1"/>
             <point x="0" y="6" key="point2"/>
-        </sheet>
-        <sheet key="bookSheet" index="1" name="Sheet2">
+        </mySheet>
+        <mySheet key="bookSheet" index="1" name="Sheet2">
             <table key="" class="" limit="">
                 <column y="1" key="column1"/>
                 <column y="2" key="column2"/>
@@ -41,11 +41,11 @@
             </table>
             <point x="0" y="5" key="point1"/>
             <point x="0" y="6" key="point2"/>
-        </sheet>
+        </mySheet>
     </excel>
 
     <excel id="excel002" template="classpath:path/to/excel/template">
-        <sheet key="userSheet" index="0" name="Sheet1">
+        <mySheet key="userSheet" index="0" name="Sheet1">
             <table key="" class="" limit="" filters="filter001,filters001">
                 <column y="1" key="column1"/>
                 <column y="2" key="column2"/>
@@ -56,8 +56,8 @@
             </table>
             <point x="0" y="5" key="point1"/>
             <point x="0" y="6" key="point2"/>
-        </sheet>
-        <sheet key="bookSheet" index="1" name="Sheet2">
+        </mySheet>
+        <mySheet key="bookSheet" index="1" name="Sheet2">
             <table key="" class="" limit="">
                 <column y="1" key="column1"/>
                 <column y="2" key="column2"/>
@@ -68,6 +68,6 @@
             </table>
             <point x="0" y="5" key="point1"/>
             <point x="0" y="6" key="point2"/>
-        </sheet>
+        </mySheet>
     </excel>
 </easy-excel>

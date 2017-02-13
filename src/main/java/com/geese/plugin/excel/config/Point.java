@@ -31,7 +31,7 @@ public class Point extends Filterable {
     /**
      * 关联的sheet配置信息，把point当做是sheet中的一个散列点
      */
-    private Sheet sheet;
+    private MySheet mySheet;
 
     /**
      * 关联的table配置信息，把point当做是table中一行中的一列
@@ -70,12 +70,12 @@ public class Point extends Filterable {
         this.data = data;
     }
 
-    public Sheet getSheet() {
-        return sheet;
+    public MySheet getMySheet() {
+        return mySheet;
     }
 
-    public void setSheet(Sheet sheet) {
-        this.sheet = sheet;
+    public void setMySheet(MySheet mySheet) {
+        this.mySheet = mySheet;
     }
 
     public Table getTable() {

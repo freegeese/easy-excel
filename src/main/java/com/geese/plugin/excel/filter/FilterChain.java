@@ -37,11 +37,14 @@ public class FilterChain<T, M> {
      * @param data
      * @param config
      */
-    public void doFilter(T target, Object data, M config) {
+    public boolean doFilter(T target, Object data, M config) {
         if (!filterList.isEmpty()) {
             for (Filter filter : filterList) {
-                filter.doFilter(target, data, config);
+                if (!filter.doFilter(target, data, config)) {
+                    return false;
+                }
             }
         }
+        return true;
     }
 }

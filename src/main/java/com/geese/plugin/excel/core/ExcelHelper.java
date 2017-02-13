@@ -1,6 +1,6 @@
 package com.geese.plugin.excel.core;
 
-import com.geese.plugin.excel.config.Sheet;
+import com.geese.plugin.excel.config.MySheet;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -450,7 +450,7 @@ public class ExcelHelper {
      * @param sheet
      * @param sheat
      */
-    public static void setSheet(String sheet, Sheet sheat) {
+    public static void setSheet(String sheet, MySheet sheat) {
         if (sheet.matches("([0-9])|([1-9]\\d*)")) {
             sheat.setIndex(Integer.valueOf(sheet));
         } else {

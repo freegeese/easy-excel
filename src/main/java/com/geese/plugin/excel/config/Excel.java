@@ -30,7 +30,7 @@ public class Excel extends Filterable {
     /**
      * Excel中Sheet表格的配置信息
      */
-    private List<Sheet> sheets;
+    private List<MySheet> mySheets;
 
     public InputStream getInput() {
         return input;
@@ -56,11 +56,11 @@ public class Excel extends Filterable {
         this.template = template;
     }
 
-    public List<Sheet> getSheets() {
-        return sheets;
+    public List<MySheet> getMySheets() {
+        return mySheets;
     }
 
-    public void setSheets(List<Sheet> sheets) {
-        this.sheets = sheets;
+    public void setMySheets(List<MySheet> mySheets) {
+        this.mySheets = mySheets;
     }
 }
