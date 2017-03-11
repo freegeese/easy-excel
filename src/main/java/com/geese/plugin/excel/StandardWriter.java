@@ -1,14 +1,14 @@
 package com.geese.plugin.excel;
 
-import com.geese.plugin.excel.config.Excel;
-import com.geese.plugin.excel.config.MySheet;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
 import com.geese.plugin.excel.core.ExcelHelper;
 import com.geese.plugin.excel.core.ExcelSupport;
 import com.geese.plugin.excel.core.OperationKey;
 import com.geese.plugin.excel.filter.*;
-import com.geese.plugin.excel.util.Check;
+import com.geese.plugin.excel.filter.write.CellAfterWriteFilter;
+import com.geese.plugin.excel.filter.write.CellBeforeWriteFilter;
+import com.geese.plugin.excel.filter.write.RowAfterWriteFilter;
+import com.geese.plugin.excel.filter.write.RowBeforeWriteFilter;
+import com.geese.plugin.excel.util.Assert;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -78,7 +78,7 @@ public class StandardWriter {
     /**
      * 写入Excel所需的Sheet配置信息
      */
-    private Map<String, MySheet> sheetConfigMap;
+    private Map<String, SheetMapping> sheetConfigMap;
 
     /**
      * 写入Excel时使用的模板
@@ -90,12 +90,12 @@ public class StandardWriter {
     }
 
     public static StandardWriter build(OutputStream output) {
-        Check.notNull(output);
+        Assert.notNull(output);
         return build(output, true);
     }
 
     public static StandardWriter build(OutputStream output, boolean useXlsx) {
-        Check.notNull(output);
+        Assert.notNull(output);
         StandardWriter writer = new StandardWriter();
         writer.output = output;
         writer.useXlsx = useXlsx;
@@ -103,7 +103,7 @@ public class StandardWriter {
     }
 
     public static StandardWriter build(OutputStream output, File template) {
-        Check.notNull(output, template);
+        Assert.notNull(output, template);
         try {
             return build(output, new FileInputStream(template));
         } catch (FileNotFoundException e) {
@@ -113,7 +113,7 @@ public class StandardWriter {
     }
 
     public static StandardWriter build(OutputStream output, InputStream template) {
-        Check.notNull(output, template);
+        Assert.notNull(output, template);
         StandardWriter writer = new StandardWriter();
         writer.output = output;
         writer.template = template;
@@ -128,7 +128,7 @@ public class StandardWriter {
      * @return
      */
     public StandardWriter insert(String firstInsert, String... more) {
-        Check.notEmpty(firstInsert);
+        Assert.notEmpty(firstInsert);
         List<String> inserts = new ArrayList();
         inserts.add(firstInsert);
         if (null != more) {
@@ -141,9 +141,9 @@ public class StandardWriter {
                 insert = insert.replaceAll("\\{|\\}", "");
                 Map<OperationKey, String> keyDataMap = ExcelHelper.insertKeyParse(insert);
                 String sheet = keyDataMap.get(OperationKey.INTO);
-                MySheet sheat = sheetConfigMap.get(sheet);
+                SheetMapping sheat = sheetConfigMap.get(sheet);
                 if (null == sheat) {
-                    sheat = new MySheet();
+                    sheat = new SheetMapping();
                     ExcelHelper.setSheet(sheet, sheat);
                     sheetConfigMap.put(sheet, sheat);
                 }
@@ -156,7 +156,7 @@ public class StandardWriter {
                     point.setY(Integer.valueOf(items[1]));
                     point.setKey(items[2]);
                     sheat.addPoint(point);
-                    point.setMySheet(sheat);
+                    point.setSheetMapping(sheat);
                 }
                 continue;
             }
@@ -165,9 +165,9 @@ public class StandardWriter {
             Map<OperationKey, String> keyDataMap = ExcelHelper.insertKeyParse(insert);
             // into sheet
             String sheet = keyDataMap.get(OperationKey.INTO);
-            MySheet sheat = sheetConfigMap.get(sheet);
+            SheetMapping sheat = sheetConfigMap.get(sheet);
             if (null == sheat) {
-                sheat = new MySheet();
+                sheat = new SheetMapping();
                 ExcelHelper.setSheet(sheet, sheat);
                 sheetConfigMap.put(sheet, sheat);
             }
@@ -194,7 +194,7 @@ public class StandardWriter {
             }
 
             sheat.addTable(table);
-            table.setMySheet(sheat);
+            table.setSheetMapping(sheat);
         }
         return this;
     }
@@ -208,12 +208,12 @@ public class StandardWriter {
      * @return
      */
     public StandardWriter addData(String sheet, Integer tableIndex, List tableData) {
-        Check.notEmpty(sheet, tableIndex, tableData);
+        Assert.notEmpty(sheet, tableIndex, tableData);
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        MySheet mySheetConfig = sheetConfigMap.get(sheet);
-        Table table = mySheetConfig.getTables().get(tableIndex);
+        SheetMapping sheetMappingConfig = sheetConfigMap.get(sheet);
+        Table table = sheetMappingConfig.getTables().get(tableIndex);
         table.setData(tableData);
         return this;
     }
@@ -226,27 +226,27 @@ public class StandardWriter {
      * @return
      */
     public StandardWriter addData(String sheet, Map<String, Object> pointData) {
-        Check.notEmpty(sheet, pointData);
+        Assert.notEmpty(sheet, pointData);
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        MySheet mySheetConfig = sheetConfigMap.get(sheet);
+        SheetMapping sheetMappingConfig = sheetConfigMap.get(sheet);
         Set<String> keys = pointData.keySet();
         for (String key : keys) {
-            Point point = mySheetConfig.findPoint(key);
-            Check.notNull(point, "找不到：[" + key + "] 对应的point");
+            Point point = sheetMappingConfig.findPoint(key);
+            Assert.notNull(point, "找不到：[" + key + "] 对应的point");
             point.setData(pointData.get(key));
         }
         return this;
     }
 
     public StandardWriter addFilter(String sheet, Integer tableIndex, Collection<Filter> filters) {
-        Check.notEmpty(filters);
+        Assert.notEmpty(filters);
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        MySheet mySheetConfig = sheetConfigMap.get(sheet);
-        Table table = mySheetConfig.getTables().get(tableIndex);
+        SheetMapping sheetMappingConfig = sheetConfigMap.get(sheet);
+        Table table = sheetMappingConfig.getTables().get(tableIndex);
 
         for (Filter filter : filters) {
             if (filter instanceof RowBeforeWriteFilter) {
@@ -271,12 +271,12 @@ public class StandardWriter {
     }
 
     public StandardWriter addFilter(String sheet, String pointKey, Collection<Filter> filters) {
-        Check.notEmpty(filters);
+        Assert.notEmpty(filters);
         if (!sheetConfigMap.containsKey(sheet)) {
             throw new IllegalArgumentException("不存在的sheet : " + sheet);
         }
-        MySheet mySheetConfig = sheetConfigMap.get(sheet);
-        Point point = mySheetConfig.findPoint(pointKey);
+        SheetMapping sheetMappingConfig = sheetConfigMap.get(sheet);
+        Point point = sheetMappingConfig.findPoint(pointKey);
 
         for (Filter filter : filters) {
             if (filter instanceof CellBeforeWriteFilter) {
@@ -293,9 +293,9 @@ public class StandardWriter {
     }
 
     public StandardWriter execute() {
-        Excel excel = new Excel();
-        excel.setOutput(output);
-        excel.setMySheets(new ArrayList<>(sheetConfigMap.values()));
+        ExcelMapping excelMapping = new ExcelMapping();
+        excelMapping.setOutput(output);
+        excelMapping.setSheetMappings(new ArrayList<>(sheetConfigMap.values()));
         // 存在模板，优先使用模板
         Workbook workbook;
         if (null != template) {
@@ -309,7 +309,7 @@ public class StandardWriter {
             workbook = useXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
         }
         ExcelSupport support = new ExcelSupport();
-        support.writeExcel(workbook, excel);
+        support.writeExcel(workbook, excelMapping);
         return this;
     }
 

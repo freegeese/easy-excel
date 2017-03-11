@@ -1,24 +1,17 @@
 package com.geese.plugin.excel.test;
 
-import com.geese.plugin.excel.StandardReader;
 import com.geese.plugin.excel.StandardWriter;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellAfterReadFilter;
-import com.geese.plugin.excel.filter.CellBeforeReadFilter;
-import com.geese.plugin.excel.filter.RowAfterReadFilter;
-import com.geese.plugin.excel.filter.RowBeforeReadFilter;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p> 标准Excel读取接口测试 <br>
@@ -34,7 +27,7 @@ public class StandardReaderTest {
     public static void beforeClass() throws IOException {
         URL url = Thread.currentThread().getContextClassLoader().getResource("demo-reader.xlsx");
         // 准备数据
-        // Excel 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
+        // ExcelMapping 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
         // 准备数据, 每一行是一个Map, 每一个表格是一个List<Map>
         String[] names = "鲁沛儿 鲁天薇 鲁飞雨 鲁天纵 鲁白梦 鲁嘉胜 鲁盼巧 鲁访天 鲁清妍 鲁盼晴 张馨蓉 张白萱 张若云 张雅畅 张雅寒 张雨华".split("\\s+");
         List<Map> tableData = new ArrayList<>();
@@ -66,30 +59,4 @@ public class StandardReaderTest {
         input = new FileInputStream(url.getFile());
     }
 
-    /**
-     * 实例1：快速上手
-     */
-    @Test
-    public void test001() {
-        Object result = StandardReader
-                .build(input)
-                .select("0 name, 1 age, 2 idCard, 3 qq, 4 email, 5 phone from 0")
-                .execute();
-        System.out.println(result);
-    }
-
-    /**
-     * 实例4：散列点
-     */
-    @Test
-    public void test004() {
-        Object result = StandardReader
-                .build(input)
-                .select(
-                        "{0-1 name, 0-2 age from 0}",
-                        "{1-1 name, 1-2 age from 1}"
-                )
-                .execute();
-        System.out.println(result);
-    }
 }

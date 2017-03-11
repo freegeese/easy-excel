@@ -2,11 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.freegeese</groupId>
-    <artifactId>easy-excel</artifactId>
+    <artifactId>easy-excelMapping</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
     <name>Easy Excel</name>
-    <url>https://github.com/freegeese/easy-excel</url>
+    <url>https://github.com/freegeese/easy-excelMapping</url>
     <description>像SQL一样操作Excel,简化Excel的读写操作</description>
 
     <!-- 开源协议 -->
@@ -35,9 +35,9 @@
 
     <!-- 软件配置 -->
     <scm>
-        <connection>scm:https://github.com/freegeese/easy-excel.git</connection>
-        <developerConnection>scm:https://github.com/freegeese/easy-excel.git</developerConnection>
-        <url>https://github.com/freegeese/easy-excel</url>
+        <connection>scm:https://github.com/freegeese/easy-excelMapping.git</connection>
+        <developerConnection>scm:https://github.com/freegeese/easy-excelMapping.git</developerConnection>
+        <url>https://github.com/freegeese/easy-excelMapping</url>
     </scm>
 
 
@@ -64,7 +64,7 @@
 
     <build>
         <testOutputDirectory>${project.build.outputDirectory}</testOutputDirectory>
-        <finalName>easy-excel</finalName>
+        <finalName>easy-excelMapping</finalName>
 
         <plugins>
             <plugin>

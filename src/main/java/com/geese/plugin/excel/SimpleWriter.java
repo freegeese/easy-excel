@@ -1,7 +1,7 @@
 package com.geese.plugin.excel;
 
 import com.geese.plugin.excel.filter.Filter;
-import com.geese.plugin.excel.util.Check;
+import com.geese.plugin.excel.util.Assert;
 import com.geese.plugin.excel.util.EmptyUtils;
 
 import java.io.*;
@@ -73,14 +73,14 @@ public class SimpleWriter {
     }
 
     public static SimpleWriter build(OutputStream output) {
-        Check.notNull(output);
+        Assert.notNull(output);
         SimpleWriter writer = new SimpleWriter();
         writer.output = output;
         return writer;
     }
 
     public static SimpleWriter build(OutputStream output, boolean useXlsx) {
-        Check.notNull(output);
+        Assert.notNull(output);
         SimpleWriter writer = new SimpleWriter();
         writer.output = output;
         writer.useXlsx = useXlsx;
@@ -88,7 +88,7 @@ public class SimpleWriter {
     }
 
     public static SimpleWriter build(OutputStream output, File template) {
-        Check.notNull(output, template);
+        Assert.notNull(output, template);
         try {
             return build(output, new FileInputStream(template));
         } catch (FileNotFoundException e) {
@@ -98,7 +98,7 @@ public class SimpleWriter {
     }
 
     public static SimpleWriter build(OutputStream output, InputStream template) {
-        Check.notNull(output, template);
+        Assert.notNull(output, template);
         SimpleWriter writer = new SimpleWriter();
         writer.output = output;
         writer.template = template;
@@ -108,86 +108,86 @@ public class SimpleWriter {
     }
 
     public SimpleWriter insert(String insert) {
-        Check.notEmpty(insert);
+        Assert.notEmpty(insert);
         this.tableInsert = insert;
         return this;
     }
 
     public SimpleWriter insert(String tableInsert, String pointInsert) {
-        Check.notEmpty(tableInsert, pointInsert);
+        Assert.notEmpty(tableInsert, pointInsert);
         this.tableInsert = tableInsert;
         this.pointInsert = pointInsert;
         return this;
     }
 
     public SimpleWriter into(String sheet) {
-        Check.notEmpty(sheet);
+        Assert.notEmpty(sheet);
         this.sheet = sheet;
         return this;
     }
 
     public SimpleWriter limit(Integer startRow) {
-        Check.notNull(startRow);
+        Assert.notNull(startRow);
         this.limit = String.valueOf(startRow);
         return this;
     }
 
     public SimpleWriter limit(Integer startRow, Integer size) {
-        Check.notNull(startRow, size);
+        Assert.notNull(startRow, size);
         this.limit = startRow + "," + size;
         return this;
     }
 
     public SimpleWriter addData(List tableData) {
-        Check.notEmpty(tableData);
+        Assert.notEmpty(tableData);
         this.tableData = tableData;
         return this;
     }
 
     public SimpleWriter addData(Map pointData) {
-        Check.notEmpty(pointData);
+        Assert.notEmpty(pointData);
         this.pointData = pointData;
         return this;
     }
 
     public SimpleWriter addData(List tableData, Map pointData) {
-        Check.notEmpty(tableData, pointData);
+        Assert.notEmpty(tableData, pointData);
         this.tableData = tableData;
         this.pointData = pointData;
         return this;
     }
 
     public SimpleWriter addFilter(Filter filter) {
-        Check.notNull(filter);
+        Assert.notNull(filter);
         tableFilters.add(filter);
         return this;
     }
 
 
     public SimpleWriter addFilter(Filter[] filters) {
-        Check.notEmpty(filters);
+        Assert.notEmpty(filters);
         return addFilter(Arrays.asList(filters));
     }
 
     public SimpleWriter addFilter(Collection<Filter> filters) {
-        Check.notEmpty(filters);
+        Assert.notEmpty(filters);
         tableFilters.addAll(filters);
         return this;
     }
 
     public SimpleWriter addFilter(String pointKey, Filter filter) {
-        Check.notEmpty(pointKey, filter);
+        Assert.notEmpty(pointKey, filter);
         return addFilter(pointKey, Arrays.asList(filter));
     }
 
 
     public SimpleWriter addFilter(String pointKey, Filter[] filters) {
-        Check.notEmpty(pointKey, filters);
+        Assert.notEmpty(pointKey, filters);
         return addFilter(Arrays.asList(filters));
     }
 
     public SimpleWriter addFilter(String pointKey, Collection<Filter> filters) {
-        Check.notEmpty(pointKey, filters);
+        Assert.notEmpty(pointKey, filters);
         List<Filter> values = pointFiltersMap.get(pointKey);
         if (null == values) {
             values = new ArrayList<>();

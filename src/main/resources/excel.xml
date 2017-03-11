@@ -1,4 +1,4 @@
-<easy-excel>
+<easy-excelMapping>
     <!-- share filter -->
     <filter id="filter001" class="com.xxx.filter.XxxFilter"/>
     <filter id="filter002" class="com.xxx.filter.XxxFilter"/>
@@ -16,58 +16,58 @@
         <filter class="com.xxx.filter.XxxFilter"/>
     </filters>
 
-    <!-- excel -->
-    <excel id="excel001" template="classpath:path/to/excel/template">
-        <mySheet key="userSheet" index="0" name="Sheet1">
-            <table key="" class="" limit="" filters="filter001,filters001">
-                <column y="1" key="column1"/>
-                <column y="2" key="column2"/>
+    <!-- excelMapping -->
+    <excelMapping id="excel001" template="classpath:path/to/excelMapping/template">
+        <sheetMapping tableDataKey="userSheet" index="0" name="Sheet1">
+            <table tableDataKey="" class="" limit="" filters="filter001,filters001">
+                <column y="1" tableDataKey="column1"/>
+                <column y="2" tableDataKey="column2"/>
             </table>
-            <table key="" class="" limit="">
-                <column y="3" key="column1"/>
-                <column y="4" key="column2"/>
+            <table tableDataKey="" class="" limit="">
+                <column y="3" tableDataKey="column1"/>
+                <column y="4" tableDataKey="column2"/>
             </table>
-            <point x="0" y="5" key="point1"/>
-            <point x="0" y="6" key="point2"/>
-        </mySheet>
-        <mySheet key="bookSheet" index="1" name="Sheet2">
-            <table key="" class="" limit="">
-                <column y="1" key="column1"/>
-                <column y="2" key="column2"/>
+            <point x="0" y="5" tableDataKey="point1"/>
+            <point x="0" y="6" tableDataKey="point2"/>
+        </sheetMapping>
+        <sheetMapping tableDataKey="bookSheet" index="1" name="Sheet2">
+            <table tableDataKey="" class="" limit="">
+                <column y="1" tableDataKey="column1"/>
+                <column y="2" tableDataKey="column2"/>
             </table>
-            <table key="" class="" limit="">
-                <column y="3" key="column1"/>
-                <column y="4" key="column2"/>
+            <table tableDataKey="" class="" limit="">
+                <column y="3" tableDataKey="column1"/>
+                <column y="4" tableDataKey="column2"/>
             </table>
-            <point x="0" y="5" key="point1"/>
-            <point x="0" y="6" key="point2"/>
-        </mySheet>
-    </excel>
+            <point x="0" y="5" tableDataKey="point1"/>
+            <point x="0" y="6" tableDataKey="point2"/>
+        </sheetMapping>
+    </excelMapping>
 
-    <excel id="excel002" template="classpath:path/to/excel/template">
-        <mySheet key="userSheet" index="0" name="Sheet1">
-            <table key="" class="" limit="" filters="filter001,filters001">
-                <column y="1" key="column1"/>
-                <column y="2" key="column2"/>
+    <excelMapping id="excel002" template="classpath:path/to/excelMapping/template">
+        <sheetMapping tableDataKey="userSheet" index="0" name="Sheet1">
+            <table tableDataKey="" class="" limit="" filters="filter001,filters001">
+                <column y="1" tableDataKey="column1"/>
+                <column y="2" tableDataKey="column2"/>
             </table>
-            <table key="" class="" limit="">
-                <column y="3" key="column1"/>
-                <column y="4" key="column2"/>
+            <table tableDataKey="" class="" limit="">
+                <column y="3" tableDataKey="column1"/>
+                <column y="4" tableDataKey="column2"/>
             </table>
-            <point x="0" y="5" key="point1"/>
-            <point x="0" y="6" key="point2"/>
-        </mySheet>
-        <mySheet key="bookSheet" index="1" name="Sheet2">
-            <table key="" class="" limit="">
-                <column y="1" key="column1"/>
-                <column y="2" key="column2"/>
+            <point x="0" y="5" tableDataKey="point1"/>
+            <point x="0" y="6" tableDataKey="point2"/>
+        </sheetMapping>
+        <sheetMapping tableDataKey="bookSheet" index="1" name="Sheet2">
+            <table tableDataKey="" class="" limit="">
+                <column y="1" tableDataKey="column1"/>
+                <column y="2" tableDataKey="column2"/>
             </table>
-            <table key="" class="" limit="">
-                <column y="3" key="column1"/>
-                <column y="4" key="column2"/>
+            <table tableDataKey="" class="" limit="">
+                <column y="3" tableDataKey="column1"/>
+                <column y="4" tableDataKey="column2"/>
             </table>
-            <point x="0" y="5" key="point1"/>
-            <point x="0" y="6" key="point2"/>
-        </mySheet>
-    </excel>
-</easy-excel>
+            <point x="0" y="5" tableDataKey="point1"/>
+            <point x="0" y="6" tableDataKey="point2"/>
+        </sheetMapping>
+    </excelMapping>
+</easy-excelMapping>

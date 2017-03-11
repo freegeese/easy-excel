@@ -1,10 +1,6 @@
 package com.geese.plugin.excel.core;
 
-import com.geese.plugin.excel.config.Excel;
-import com.geese.plugin.excel.config.MySheet;
 import com.geese.plugin.excel.util.EmptyUtils;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
 import com.geese.plugin.excel.filter.FilterChain;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,14 +12,14 @@ import java.io.OutputStream;
 import java.util.*;
 
 /**
- * Excel 操作具体实现
+ * ExcelMapping 操作具体实现
  */
 public class ExcelSupport implements ExcelOperation {
     @Override
-    public Object readExcel(Workbook workbook, Excel config) {
-        Collection<MySheet> mySheetList = config.getMySheets();
+    public Object readExcel(Workbook workbook, ExcelMapping config) {
+        Collection<SheetMapping> sheetMappingList = config.getSheetMappings();
         Map excelData = new HashMap();
-        for (MySheet sheat : mySheetList) {
+        for (SheetMapping sheat : sheetMappingList) {
             Sheet sheet;
             // 根据名称读取sheet
             String sheetName = sheat.getName();
@@ -56,10 +52,10 @@ public class ExcelSupport implements ExcelOperation {
     }
 
     @Override
-    public void writeExcel(Workbook workbook, Excel config) {
-        Collection<MySheet> mySheetList = config.getMySheets();
+    public void writeExcel(Workbook workbook, ExcelMapping config) {
+        Collection<SheetMapping> sheetMappingList = config.getSheetMappings();
         boolean notTemplate = (null == config.getTemplate());
-        for (MySheet sheat : mySheetList) {
+        for (SheetMapping sheat : sheetMappingList) {
             Sheet sheet;
             // 根据配置的名称获取sheet
             String sheetName = sheat.getName();
@@ -120,7 +116,7 @@ public class ExcelSupport implements ExcelOperation {
     }
 
     @Override
-    public Object readSheet(Sheet sheet, MySheet config) {
+    public Object readSheet(Sheet sheet, SheetMapping config) {
         // before filter
         FilterChain beforeReadFilterChain = config.getBeforeReadFilterChain();
         if (null != beforeReadFilterChain) {
@@ -163,7 +159,7 @@ public class ExcelSupport implements ExcelOperation {
     }
 
     @Override
-    public void writeSheet(Sheet sheet, MySheet config) {
+    public void writeSheet(Sheet sheet, SheetMapping config) {
         // Table 处理
         List<Table> tableList = config.getTables();
         if (EmptyUtils.notEmpty(tableList)) {

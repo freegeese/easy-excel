@@ -1,7 +1,4 @@
-package com.geese.plugin.excel.config;
-
-import com.geese.plugin.excel.filter.Filter;
-import com.geese.plugin.excel.filter.FilterChain;
+package com.geese.plugin.excel.filter;
 
 import java.util.Collection;
 

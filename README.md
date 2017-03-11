@@ -6,16 +6,16 @@
 
 ###对Excel的简单read，使用SimpleReader类完成
 ```
-package com.geese.plugin.excel.test;
+package com.geese.plugin.excelMapping.test;
 
-import com.geese.plugin.excel.filter.CellAfterReadFilter;
-import com.geese.plugin.excel.filter.RowAfterReadFilter;
-import com.geese.plugin.excel.SimpleReader;
-import com.geese.plugin.excel.SimpleWriter;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellBeforeReadFilter;
-import com.geese.plugin.excel.filter.RowBeforeReadFilter;
+import com.geese.plugin.excelMapping.filter.read.CellAfterReadFilter;
+import com.geese.plugin.excelMapping.filter.read.RowAfterReadFilter;
+import com.geese.plugin.excelMapping.SimpleReader;
+import com.geese.plugin.excelMapping.SimpleWriter;
+import com.geese.plugin.excelMapping.config.Point;
+import com.geese.plugin.excelMapping.config.Table;
+import com.geese.plugin.excelMapping.filter.read.CellBeforeReadFilter;
+import com.geese.plugin.excelMapping.filter.read.RowBeforeReadFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.AfterClass;
@@ -177,13 +177,13 @@ public class SimpleReaderTest {
 ```
 ### 对Excel的简单write，使用SimpleWriter类完成
 ```
-package com.geese.plugin.excel.test;
+package com.geese.plugin.excelMapping.test;
 
-import com.geese.plugin.excel.SimpleWriter;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellWriteFilter;
-import com.geese.plugin.excel.filter.RowWriteFilter;
+import com.geese.plugin.excelMapping.SimpleWriter;
+import com.geese.plugin.excelMapping.config.Point;
+import com.geese.plugin.excelMapping.config.Table;
+import com.geese.plugin.excelMapping.filter.CellWriteFilter;
+import com.geese.plugin.excelMapping.filter.RowWriteFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;
@@ -356,16 +356,16 @@ public class SimpleWriterTest {
 ## 高级部分
 ### StandardReader 接口使用
 ```
-package com.geese.plugin.excel.test;
+package com.geese.plugin.excelMapping.test;
 
-import com.geese.plugin.excel.StandardReader;
-import com.geese.plugin.excel.StandardWriter;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellAfterReadFilter;
-import com.geese.plugin.excel.filter.CellBeforeReadFilter;
-import com.geese.plugin.excel.filter.RowAfterReadFilter;
-import com.geese.plugin.excel.filter.RowBeforeReadFilter;
+import com.geese.plugin.excelMapping.StandardReader;
+import com.geese.plugin.excelMapping.StandardWriter;
+import com.geese.plugin.excelMapping.config.Point;
+import com.geese.plugin.excelMapping.config.Table;
+import com.geese.plugin.excelMapping.filter.read.CellAfterReadFilter;
+import com.geese.plugin.excelMapping.filter.read.CellBeforeReadFilter;
+import com.geese.plugin.excelMapping.filter.read.RowAfterReadFilter;
+import com.geese.plugin.excelMapping.filter.read.RowBeforeReadFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;
@@ -514,13 +514,13 @@ public class StandardReaderTest {
 
 ### StandardWriter 接口使用
 ```
-package com.geese.plugin.excel.test;
+package com.geese.plugin.excelMapping.test;
 
-import com.geese.plugin.excel.StandardWriter;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellWriteFilter;
-import com.geese.plugin.excel.filter.RowWriteFilter;
+import com.geese.plugin.excelMapping.StandardWriter;
+import com.geese.plugin.excelMapping.config.Point;
+import com.geese.plugin.excelMapping.config.Table;
+import com.geese.plugin.excelMapping.filter.CellWriteFilter;
+import com.geese.plugin.excelMapping.filter.RowWriteFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;

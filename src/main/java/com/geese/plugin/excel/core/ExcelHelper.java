@@ -1,6 +1,5 @@
 package com.geese.plugin.excel.core;
 
-import com.geese.plugin.excel.config.MySheet;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -15,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Excel 辅助类
+ * ExcelMapping 辅助类
  * <p>在对Excel进行read或write操作的时候，所需要用到的一些辅助接口</p>
  *
  * @author zhangguangyong <a href="#">1243610991@qq.com</a>
@@ -450,7 +449,7 @@ public class ExcelHelper {
      * @param sheet
      * @param sheat
      */
-    public static void setSheet(String sheet, MySheet sheat) {
+    public static void setSheet(String sheet, SheetMapping sheat) {
         if (sheet.matches("([0-9])|([1-9]\\d*)")) {
             sheat.setIndex(Integer.valueOf(sheet));
         } else {

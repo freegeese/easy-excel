@@ -1,6 +1,6 @@
-package com.geese.plugin.excel.filter;
+package com.geese.plugin.excel.filter.write;
 
-import com.geese.plugin.excel.config.Excel;
+import com.geese.plugin.excel.filter.ExcelFilter;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
@@ -10,5 +10,5 @@ import org.apache.poi.ss.usermodel.Workbook;
  * @date 2016/11/21 22:19
  * @sine 0.0.2
  */
-public interface ExcelAfterWriteFilter extends ExcelFilter<Workbook, Excel> {
+public interface ExcelAfterWriteFilter extends ExcelFilter<Workbook, ExcelMapping> {
 }

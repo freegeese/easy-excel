@@ -1,6 +1,6 @@
 package com.geese.plugin.excel.filter;
 
-import com.geese.plugin.excel.config.Point;
+import com.geese.plugin.excel.mapping.CellMapping;
 import org.apache.poi.ss.usermodel.Cell;
 
 /**
@@ -12,5 +12,5 @@ import org.apache.poi.ss.usermodel.Cell;
  * @date 2016/11/16 16:26
  * @sine 0.0.1
  */
-public interface CellFilter<T extends Cell, M extends Point> extends Filter<T, M> {
+public interface CellFilter<T extends Cell, M extends CellMapping> extends Filter<T, M> {
 }

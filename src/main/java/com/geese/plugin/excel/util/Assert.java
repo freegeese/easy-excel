@@ -10,8 +10,8 @@ import java.util.List;
  * @date 2016/11/16 16:29
  * @sine 0.0.1
  */
-public final class Check {
-    private Check() {
+public final class Assert {
+    private Assert() {
     }
 
     public static <T> T notNull(T reference) {

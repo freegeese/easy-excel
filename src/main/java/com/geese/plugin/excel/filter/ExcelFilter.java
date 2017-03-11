@@ -1,6 +1,6 @@
 package com.geese.plugin.excel.filter;
 
-import com.geese.plugin.excel.config.Excel;
+import com.geese.plugin.excel.mapping.ExcelMapping;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
@@ -10,5 +10,5 @@ import org.apache.poi.ss.usermodel.Workbook;
  * @date 2016/11/21 22:09
  * @sine 0.0.2
  */
-public interface ExcelFilter<T extends Workbook, M extends Excel> extends Filter<T, M> {
+public interface ExcelFilter<T extends Workbook, M extends ExcelMapping> extends Filter<T, M> {
 }

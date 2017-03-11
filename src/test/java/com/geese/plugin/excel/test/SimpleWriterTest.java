@@ -1,12 +1,6 @@
 package com.geese.plugin.excel.test;
 
 import com.geese.plugin.excel.SimpleWriter;
-import com.geese.plugin.excel.config.Point;
-import com.geese.plugin.excel.config.Table;
-import com.geese.plugin.excel.filter.CellBeforeWriteFilter;
-import com.geese.plugin.excel.filter.RowBeforeWriteFilter;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -44,7 +38,7 @@ public class SimpleWriterTest {
      */
     @Test
     public void test001() {
-        // Excel 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
+        // ExcelMapping 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
         // 准备数据, 每一行是一个Map, 每一个表格是一个List<Map>
         String names = "鲁沛儿 鲁天薇 鲁飞雨 鲁天纵 鲁白梦 鲁嘉胜 鲁盼巧 鲁访天 鲁清妍 鲁盼晴 张馨蓉 张白萱 张若云 张雅畅 张雅寒 张雨华";
         List<Map> tableData = new ArrayList<>();
@@ -71,7 +65,7 @@ public class SimpleWriterTest {
      */
     @Test
     public void test002() {
-        // Excel 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
+        // ExcelMapping 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
         // 准备数据, 每一行是一个Map, 每一个表格是一个List<Map>
         String names = "鲁沛儿 鲁天薇 鲁飞雨 鲁天纵 鲁白梦 鲁嘉胜 鲁盼巧 鲁访天 鲁清妍 鲁盼晴 张馨蓉 张白萱 张若云 张雅畅 张雅寒 张雨华";
         List<Map> tableData = new ArrayList<>();
@@ -100,7 +94,7 @@ public class SimpleWriterTest {
      */
     @Test
     public void test004() {
-        // Excel 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
+        // ExcelMapping 表头： 姓名	| 年龄 | 身份证号	| QQ | 邮箱 | 手机
         // 准备数据, 每一行是一个Map, 每一个表格是一个List<Map>
         String names = "鲁沛儿 鲁天薇 鲁飞雨 鲁天纵 鲁白梦 鲁嘉胜 鲁盼巧 鲁访天 鲁清妍 鲁盼晴 张馨蓉 张白萱 张若云 张雅畅 张雅寒 张雨华";
         List<Map> tableData = new ArrayList<>();

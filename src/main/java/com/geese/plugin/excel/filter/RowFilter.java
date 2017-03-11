@@ -1,6 +1,6 @@
 package com.geese.plugin.excel.filter;
 
-import com.geese.plugin.excel.config.Table;
+import com.geese.plugin.excel.mapping.SheetMapping;
 import org.apache.poi.ss.usermodel.Row;
 
 
@@ -13,5 +13,5 @@ import org.apache.poi.ss.usermodel.Row;
  * @date 2016/11/16 16:23
  * @sine 0.0.1
  */
-public interface RowFilter<T extends Row, M extends Table> extends Filter<T, M> {
+public interface RowFilter<T extends Row, M extends SheetMapping> extends Filter<T, M> {
 }
