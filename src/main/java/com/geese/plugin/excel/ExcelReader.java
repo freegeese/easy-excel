@@ -10,31 +10,30 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Administrator on 2017/3/12.
+ * 读取Excel
  */
-public class ExcelStandardReader {
+public class ExcelReader {
     // 处理客户端输入信息
     private ClientMapping clientMapping = new ClientMapping();
 
-    public static ExcelStandardReader newInstance(InputStream excelInput) {
-        ExcelStandardReader instance = new ExcelStandardReader();
+    public static ExcelReader newInstance(InputStream excelInput) {
+        ExcelReader instance = new ExcelReader();
         instance.getClientMapping().setExcelInput(excelInput);
         return instance;
     }
 
-    public ExcelStandardReader select(String query) {
+    public ExcelReader select(String query) {
         Assert.notEmpty(query);
         clientMapping.getQueries().add(query);
         return this;
     }
 
-    public ExcelStandardReader select(String first, String second, String... more) {
+    public ExcelReader select(String first, String second, String... more) {
         Assert.notEmpty(first, second);
         List<String> queries = clientMapping.getQueries();
         queries.add(first);
@@ -45,12 +44,12 @@ public class ExcelStandardReader {
         return this;
     }
 
-    public ExcelStandardReader filter(Filter filter, String switchSheet) {
+    public ExcelReader filter(Filter filter, String switchSheet) {
         getClientMapping().addFilter(filter, switchSheet);
         return this;
     }
 
-    public ExcelStandardReader filters(List<Filter> filters, String switchSheet) {
+    public ExcelReader filters(List<Filter> filters, String switchSheet) {
         getClientMapping().addFilters(filters, switchSheet);
         return this;
     }
@@ -62,8 +61,6 @@ public class ExcelStandardReader {
         ExcelMapping excelMapping = clientMapping.parseClientInput();
         // 创建Workbook
         Workbook workbook = WorkbookFactory.create(clientMapping.getExcelInput());
-        // 创建Excel模板
-        ExcelTemplate excelTemplate = new ExcelTemplate();
         // Excel操作接口代理
         ExcelOperations proxy = ExcelOperationsProxyFactory.getProxy();
         return (Map) proxy.readExcel(workbook, excelMapping);

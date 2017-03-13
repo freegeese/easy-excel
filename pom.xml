@@ -2,11 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.freegeese</groupId>
-    <artifactId>easy-excelMapping</artifactId>
-    <version>0.0.1</version>
+    <artifactId>easy-excel</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
     <name>Easy Excel</name>
-    <url>https://github.com/freegeese/easy-excelMapping</url>
+    <url>https://github.com/freegeese/easy-excel</url>
     <description>像SQL一样操作Excel,简化Excel的读写操作</description>
 
     <!-- 开源协议 -->
@@ -35,9 +35,9 @@
 
     <!-- 软件配置 -->
     <scm>
-        <connection>scm:https://github.com/freegeese/easy-excelMapping.git</connection>
-        <developerConnection>scm:https://github.com/freegeese/easy-excelMapping.git</developerConnection>
-        <url>https://github.com/freegeese/easy-excelMapping</url>
+        <connection>scm:https://github.com/freegeese/easy-excel.git</connection>
+        <developerConnection>scm:https://github.com/freegeese/easy-excel.git</developerConnection>
+        <url>https://github.com/freegeese/easy-excel</url>
     </scm>
 
 
@@ -64,7 +64,7 @@
 
     <build>
         <testOutputDirectory>${project.build.outputDirectory}</testOutputDirectory>
-        <finalName>easy-excelMapping</finalName>
+        <finalName>easy-excel</finalName>
 
         <plugins>
             <plugin>
@@ -113,126 +113,34 @@
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <!-- findbugs -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
-                <configuration>
-                    <xmlOutput>true</xmlOutput>
-                    <!-- Optional directory to put findbugs xdoc xml report -->
-                    <xmlOutputDirectory>target/site</xmlOutputDirectory>
-                </configuration>
-            </plugin>
-            <!-- PMD -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.7</version>
-            </plugin>
-            <!-- checkstyle -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>checkstyle</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
+    <!-- 中央仓库修改为内部的私服仓库 -->
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>My Nexus Repository</name>
+            <url>http://192.168.0.9:9092/nexus/content/groups/public</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <!-- source -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <attach>true</attach>
-                        </configuration>
-                    </plugin>
-
-                    <!-- javadoc -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!-- gpg -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!-- nexus-staging -->
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.6</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>oss</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-
-            <!-- deploy mvn clean deploy -P release -Dgpg.passphrase=123456 -->
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>oss</id>
-                    <url>
-                        https://oss.sonatype.org/content/repositories/snapshots/
-                    </url>
-                </snapshotRepository>
-                <repository>
-                    <id>oss</id>
-                    <url>
-                        https://oss.sonatype.org/service/local/staging/deploy/maven2/
-                    </url>
-                </repository>
-            </distributionManagement>
-
-        </profile>
-    </profiles>
+    <!-- 发布到私服 -->
+    <distributionManagement>
+        <repository>
+            <id>mocai-releases</id>
+            <name>Mocai Releases</name>
+            <url>http://192.168.0.9:9092/nexus/content/repositories/mocai-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>mocai-snapshot</id>
+            <name>Mocai Snapshot</name>
+            <url>http://192.168.0.9:9092/nexus/content/repositories/mocai-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

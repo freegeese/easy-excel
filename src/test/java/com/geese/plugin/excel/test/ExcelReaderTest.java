@@ -1,6 +1,6 @@
 package com.geese.plugin.excel.test;
 
-import com.geese.plugin.excel.ExcelStandardReader;
+import com.geese.plugin.excel.ExcelReader;
 import com.geese.plugin.excel.ExcelTemplate;
 import com.geese.plugin.excel.filter.read.RowAfterReadFilter;
 import com.geese.plugin.excel.filter.read.RowBeforeReadFilter;
@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Created by Administrator on 2017/3/11.
  */
-public class ExcelMappingStandardReaderTest {
+public class ExcelReaderTest {
 
     private static InputStream excelFrom;
 
@@ -43,7 +43,7 @@ public class ExcelMappingStandardReaderTest {
 
     @Test
     public void test1() throws IOException, InvalidFormatException {
-        Object result = ExcelStandardReader.newInstance(excelFrom)
+        Object result = ExcelReader.newInstance(excelFrom)
                 .select("7 thick, 8 width, 9 length, 10 weight, 11 unitWeight from Sheet1 limit 10,10")
                 .execute();
         System.out.println(result);
@@ -51,7 +51,7 @@ public class ExcelMappingStandardReaderTest {
 
     @Test
     public void test2() throws IOException, InvalidFormatException {
-        Object result = ExcelStandardReader.newInstance(excelFrom)
+        Object result = ExcelReader.newInstance(excelFrom)
                 .select(
                         "7 thick, 8 width, 9 length, 10 weight, 11 unitWeight from Sheet1 limit 10,10",
                         "{0-0 no, 0-1 type from Sheet2}"
@@ -62,7 +62,7 @@ public class ExcelMappingStandardReaderTest {
 
     @Test
     public void test3() throws IOException, InvalidFormatException {
-        Object result = ExcelStandardReader.newInstance(excelFrom)
+        Object result = ExcelReader.newInstance(excelFrom)
                 .select(
                         "7 thick, 8 width, 9 length, 10 weight, 11 unitWeight from Sheet1 limit 10,10",
                         "{0-0 no, 0-1 type from Sheet2}"
@@ -93,7 +93,7 @@ public class ExcelMappingStandardReaderTest {
 
     @Test
     public void test4() throws IOException, InvalidFormatException {
-        Map result = ExcelStandardReader.newInstance(excelFrom)
+        Map result = ExcelReader.newInstance(excelFrom)
                 .select(
                         "no, type, shape, gy, jonggong from Sheet1 limit 10,100",
                         "{0-0 no, 0-1 type from Sheet2}"
