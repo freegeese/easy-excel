@@ -1,6 +1,5 @@
 package com.geese.plugin.excel;
 
-import com.geese.plugin.excel.core.ExcelHelper;
 import com.geese.plugin.excel.mapping.CellMapping;
 import com.geese.plugin.excel.mapping.ExcelMapping;
 import com.geese.plugin.excel.mapping.SheetMapping;
@@ -10,33 +9,30 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Administrator on 2017/3/11.
  */
 public class ExcelTemplate implements ExcelOperations {
-    static final String TABLE_DATA_KEY = "tableData";
-    static final String POINT_DATA_KEY = "pointData";
-
+    public static final String TABLE_DATA_KEY = "tableData";
+    public static final String POINT_DATA_KEY = "pointData";
 
     @Override
     public Object readExcel(Workbook workbook, ExcelMapping excelMapping) {
         Assert.notNull(workbook, excelMapping);
-        List<SheetMapping> sheetMappings = excelMapping.getSheetMappings();
+        Collection<SheetMapping> sheetMappings = excelMapping.getSheetMappings();
         Assert.notEmpty(sheetMappings);
-        Map returnValue = new HashMap<>();
+        Map returnValue = new LinkedHashMap();
         for (SheetMapping sheetMapping : sheetMappings) {
             // 根据名称获取真实的Sheet
             String name = sheetMapping.getName();
             if (null != name) {
                 Sheet sheet = workbook.getSheet(name);
                 Assert.notNull(sheet, "根据名称:[%s]未获取到Sheet", name);
-                Object sheetData = readSheet(sheet, sheetMapping);
-                returnValue.put(sheetMapping.getTableDataKey(), sheetData);
+//                Object sheetData = readSheet(sheet, sheetMapping);
+                Object sheetData = ExcelOperationsProxyFactory.getProxy().readSheet(sheet, sheetMapping);
+                returnValue.put(sheetMapping.getDataKey(), sheetData);
                 continue;
             }
             // 根据索引获取真实的Sheet
@@ -44,8 +40,9 @@ public class ExcelTemplate implements ExcelOperations {
             if (null != index) {
                 Sheet sheet = workbook.getSheetAt(index);
                 Assert.notNull(sheet, "根据索引:[%s]未获取到Sheet", index);
-                Object sheetData = readSheet(sheet, sheetMapping);
-                returnValue.put(sheetMapping.getTableDataKey(), sheetData);
+//                Object sheetData = readSheet(sheet, sheetMapping);
+                Object sheetData = ExcelOperationsProxyFactory.getProxy().readSheet(sheet, sheetMapping);
+                returnValue.put(sheetMapping.getDataKey(), sheetData);
                 continue;
             }
             // TODO: 获取workbook中所有的sheet    2017/3/11 workbook.iterator()
@@ -59,7 +56,7 @@ public class ExcelTemplate implements ExcelOperations {
     public Object readSheet(Sheet sheet, SheetMapping sheetMapping) {
         Assert.notNull(sheet, sheetMapping);
 
-        Map returnValue = new HashMap<>();
+        Map returnValue = new LinkedHashMap();
         // 读取Table数据
         List<CellMapping> tableHeads = sheetMapping.getTableHeads();
         if (null != tableHeads && !tableHeads.isEmpty()) {
@@ -75,7 +72,13 @@ public class ExcelTemplate implements ExcelOperations {
             List tableData = new ArrayList();
             for (int i = startRow; i < endRow; i++) {
                 Row row = sheet.getRow(i);
-                Object rowData = readRow(row, sheetMapping);
+                Object rowData = ExcelOperationsProxyFactory.getProxy().readRow(row, sheetMapping);
+//                Object rowData = readRow(row, sheetMapping);
+                // 过滤未通过
+                if (EXCEL_NOT_FILTERED.equals(rowData)) {
+                    returnValue.put(TABLE_DATA_KEY, tableData);
+                    return returnValue;
+                }
                 tableData.add(rowData);
             }
             returnValue.put(TABLE_DATA_KEY, tableData);
@@ -84,7 +87,7 @@ public class ExcelTemplate implements ExcelOperations {
         // 读取Map数据（散列点）
         List<CellMapping> mapPoints = sheetMapping.getPoints();
         if (null != mapPoints && !mapPoints.isEmpty()) {
-            Map mapPointsData = new HashMap();
+            Map mapPointsData = new LinkedHashMap();
             for (CellMapping mapPoint : mapPoints) {
                 // 行号
                 Integer rowNumber = mapPoint.getRowNumber();
@@ -106,7 +109,7 @@ public class ExcelTemplate implements ExcelOperations {
         List<CellMapping> tableHeads = sheetMapping.getTableHeads();
         Assert.notEmpty(tableHeads);
 
-        Map returnValue = new HashMap<>();
+        Map returnValue = new LinkedHashMap();
         for (CellMapping tableHead : tableHeads) {
             Integer columnNumber = tableHead.getColumnNumber();
             Cell cell = row.getCell(columnNumber);
@@ -123,21 +126,21 @@ public class ExcelTemplate implements ExcelOperations {
 
     @Override
     public void write(Workbook workbook, ExcelMapping excelMapping) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void write(Sheet sheet, SheetMapping sheetMapping) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void write(Row row, SheetMapping sheetMapping, Object data) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void write(Cell cell, SheetMapping sheetMapping, Object data) {
-
+        throw new UnsupportedOperationException();
     }
 }

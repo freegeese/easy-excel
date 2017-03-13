@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
  * ExcelMapping 操作接口定义
  */
 public interface ExcelOperations {
+    String EXCEL_NOT_FILTERED = "EXCEL_NOT_FILTERED";
     /**
      * 读取Excel
      *

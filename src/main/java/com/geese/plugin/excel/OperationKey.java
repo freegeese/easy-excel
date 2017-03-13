@@ -1,4 +1,4 @@
-package com.geese.plugin.excel.core;
+package com.geese.plugin.excel;
 
 /**
  * 操作关键字,用于在read excel的时候使用where过滤的情况

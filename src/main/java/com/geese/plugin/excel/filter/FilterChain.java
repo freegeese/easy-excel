@@ -30,6 +30,10 @@ public class FilterChain<T, M> {
         return this;
     }
 
+    public boolean isEmpty() {
+        return filterList.isEmpty();
+    }
+
     /**
      * 执行过滤，会调用链条上每个节点的doFilter方法
      *

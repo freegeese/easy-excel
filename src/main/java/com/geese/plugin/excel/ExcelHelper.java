@@ -1,5 +1,6 @@
-package com.geese.plugin.excel.core;
+package com.geese.plugin.excel;
 
+import com.geese.plugin.excel.mapping.SheetMapping;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -353,8 +354,8 @@ public class ExcelHelper {
      * @param query
      * @return
      */
-    public static Map<OperationKey, String> selectKeyParse(String query) {
-        return keyParse(query, queryKeys);
+    public static Map<OperationKey, String> parseQuery(String query) {
+        return parseKeys(query, queryKeys);
     }
 
     /**
@@ -363,8 +364,8 @@ public class ExcelHelper {
      * @param insert
      * @return
      */
-    public static Map<OperationKey, String> insertKeyParse(String insert) {
-        return keyParse(insert, insertKeys);
+    public static Map<OperationKey, String> parseInsert(String insert) {
+        return parseKeys(insert, insertKeys);
     }
 
     /**
@@ -376,7 +377,7 @@ public class ExcelHelper {
      * @param keys
      * @return
      */
-    private static Map<OperationKey, String> keyParse(String query, String[] keys) {
+    private static Map<OperationKey, String> parseKeys(String query, String[] keys) {
         // 删除多余的空格
         String parsedQuery = String.valueOf(query).replaceAll("\\s+", " ");
         // 将`key` 转换为大写 -> `KEY`
@@ -447,13 +448,13 @@ public class ExcelHelper {
      * 设置sheet名称或者索引
      *
      * @param sheet
-     * @param sheat
+     * @param sheetMapping
      */
-    public static void setSheet(String sheet, SheetMapping sheat) {
+    public static void setSheet(String sheet, SheetMapping sheetMapping) {
         if (sheet.matches("([0-9])|([1-9]\\d*)")) {
-            sheat.setIndex(Integer.valueOf(sheet));
+            sheetMapping.setIndex(Integer.valueOf(sheet));
         } else {
-            sheat.setName(sheet);
+            sheetMapping.setName(sheet);
         }
     }
 }

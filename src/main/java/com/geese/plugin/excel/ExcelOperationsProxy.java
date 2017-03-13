@@ -1,5 +1,8 @@
 package com.geese.plugin.excel;
 
+import com.geese.plugin.excel.filter.FilterChain;
+import com.geese.plugin.excel.mapping.SheetMapping;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -17,9 +20,49 @@ public class ExcelOperationsProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        System.out.println("调用之前：" + method);
+        String name = method.getName();
+        if (name.startsWith("read")) {
+            FilterChain readBeforeFilterChain = null;
+            Object mapping = null;
+            if ("readSheet".equals(name)) {
+                SheetMapping sheetMapping = (SheetMapping) args[1];
+                mapping = args[1];
+                readBeforeFilterChain = sheetMapping.getExcelMapping().getSheetBeforeReadFilterChain(sheetMapping.getName());
+            }
+            if ("readRow".equals(name)) {
+                SheetMapping sheetMapping = (SheetMapping) args[1];
+                mapping = args[1];
+                readBeforeFilterChain = sheetMapping.getExcelMapping().getRowBeforeReadFilterChain(sheetMapping.getName());
+            }
+            if (null != readBeforeFilterChain && !readBeforeFilterChain.isEmpty()) {
+                if (!readBeforeFilterChain.doFilter(args[0], null, mapping)) {
+                    return ExcelOperations.EXCEL_NOT_FILTERED;
+                }
+            }
+        }
+
         Object returnValue = method.invoke(target, args);
-        System.out.println("调用之后：" + returnValue);
+
+        if (name.startsWith("read")) {
+            FilterChain readAfterFilterChain = null;
+            Object mapping = null;
+            if ("readSheet".equals(name)) {
+                SheetMapping sheetMapping = (SheetMapping) args[1];
+                mapping = args[1];
+                readAfterFilterChain = sheetMapping.getExcelMapping().getSheetAfterReadFilterChain(sheetMapping.getName());
+            }
+            if ("readRow".equals(name)) {
+                SheetMapping sheetMapping = (SheetMapping) args[1];
+                mapping = args[1];
+                readAfterFilterChain = sheetMapping.getExcelMapping().getRowAfterReadFilterChain(sheetMapping.getName());
+            }
+            if (null != readAfterFilterChain && !readAfterFilterChain.isEmpty()) {
+                if (!readAfterFilterChain.doFilter(args[0], returnValue, mapping)) {
+                    return ExcelOperations.EXCEL_NOT_FILTERED;
+                }
+            }
+        }
+
         return returnValue;
     }
 }

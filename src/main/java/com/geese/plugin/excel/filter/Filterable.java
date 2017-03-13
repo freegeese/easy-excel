@@ -1,5 +1,7 @@
 package com.geese.plugin.excel.filter;
 
+import com.geese.plugin.excel.util.Assert;
+
 import java.util.Collection;
 
 /**
@@ -9,76 +11,59 @@ import java.util.Collection;
  * @date 2016/11/21 22:00
  * @sine 0.0.2
  */
-public abstract class Filterable {
+public class Filterable {
+    private FilterChain beforeReadFilterChain = new FilterChain();
 
-    private FilterChain beforeReadFilterChain;
+    private FilterChain afterReadFilterChain = new FilterChain();
 
-    private FilterChain afterReadFilterChain;
+    private FilterChain beforeWriteFilterChain = new FilterChain();
 
-    private FilterChain beforeWriteFilterChain;
-
-    private FilterChain afterWriteFilterChain;
+    private FilterChain afterWriteFilterChain = new FilterChain();
 
     public Filterable addBeforeReadFilter(Filter filter) {
-        if (null == beforeReadFilterChain) {
-            beforeReadFilterChain = new FilterChain();
-        }
+        Assert.notNull(filter);
         beforeReadFilterChain.addFilter(filter);
         return this;
     }
 
     public Filterable addBeforeReadFilters(Collection<Filter> filters) {
-        if (null == beforeReadFilterChain) {
-            beforeReadFilterChain = new FilterChain();
-        }
+        Assert.notEmpty(filters);
         beforeReadFilterChain.addFilters(filters);
         return this;
     }
 
     public Filterable addAfterReadFilter(Filter filter) {
-        if (null == afterReadFilterChain) {
-            afterReadFilterChain = new FilterChain();
-        }
+        Assert.notNull(filter);
         afterReadFilterChain.addFilter(filter);
         return this;
     }
 
     public Filterable addAfterReadFilters(Collection<Filter> filters) {
-        if (null == afterReadFilterChain) {
-            afterReadFilterChain = new FilterChain();
-        }
+        Assert.notEmpty(filters);
         afterReadFilterChain.addFilters(filters);
         return this;
     }
 
     public Filterable addBeforeWriteFilter(Filter filter) {
-        if (null == beforeWriteFilterChain) {
-            beforeWriteFilterChain = new FilterChain();
-        }
+        Assert.notNull(filter);
         beforeWriteFilterChain.addFilter(filter);
         return this;
     }
 
     public Filterable addBeforeWriteFilters(Collection<Filter> filters) {
-        if (null == beforeWriteFilterChain) {
-            beforeWriteFilterChain = new FilterChain();
-        }
+        Assert.notEmpty(filters);
         beforeWriteFilterChain.addFilters(filters);
         return this;
     }
 
     public Filterable addAfterWriteFilter(Filter filter) {
-        if (null == afterWriteFilterChain) {
-            afterWriteFilterChain = new FilterChain();
-        }
+        Assert.notNull(filter);
         afterWriteFilterChain.addFilter(filter);
         return this;
     }
 
     public Filterable addAfterWriteFilters(Collection<Filter> filters) {
-        if (null == afterWriteFilterChain) {
-            afterWriteFilterChain = new FilterChain();
-        }
+        Assert.notEmpty(filters);
         afterWriteFilterChain.addFilters(filters);
         return this;
     }

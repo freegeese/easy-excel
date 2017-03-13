@@ -2,6 +2,7 @@ package com.geese.plugin.excel.mapping;
 
 import com.geese.plugin.excel.filter.Filterable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class SheetMapping extends Filterable {
 
     // 线性数据结构-------------------------------
     // 表头
-    private List<CellMapping> tableHeads;
+    private List<CellMapping> tableHeads = new ArrayList<>();
     // 开始行
     private Integer startRow;
     // 结束行
@@ -28,7 +29,9 @@ public class SheetMapping extends Filterable {
 
     // 散列数据结构-------------------------------
     // 散列点
-    private List<CellMapping> points;
+    private List<CellMapping> points = new ArrayList<>();
+
+    private ExcelMapping excelMapping;
 
     public String getName() {
         return name;
@@ -92,5 +95,13 @@ public class SheetMapping extends Filterable {
 
     public void setDataKey(String dataKey) {
         this.dataKey = dataKey;
+    }
+
+    public ExcelMapping getExcelMapping() {
+        return excelMapping;
+    }
+
+    public void setExcelMapping(ExcelMapping excelMapping) {
+        this.excelMapping = excelMapping;
     }
 }

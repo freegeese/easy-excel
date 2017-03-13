@@ -1,6 +1,7 @@
 package com.geese.plugin.excel.filter.write;
 
 import com.geese.plugin.excel.filter.ExcelFilter;
+import com.geese.plugin.excel.mapping.ExcelMapping;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
