@@ -444,17 +444,7 @@ public class ExcelHelper {
         return key.replace("`", "");
     }
 
-    /**
-     * 设置sheet名称或者索引
-     *
-     * @param sheet
-     * @param sheetMapping
-     */
-    public static void setSheet(String sheet, SheetMapping sheetMapping) {
-        if (sheet.matches("([0-9])|([1-9]\\d*)")) {
-            sheetMapping.setIndex(Integer.valueOf(sheet));
-        } else {
-            sheetMapping.setName(sheet);
-        }
+    public static boolean isNumber(String text) {
+        return null != text && text.matches("([0-9])|([1-9]\\d*)");
     }
 }

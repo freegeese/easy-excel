@@ -61,6 +61,9 @@ public class ClientMapping {
                     sheetMapping = new SheetMapping();
                     sheetMapping.setDataKey(from);
                     sheetMapping.setName(from);
+                    if (ExcelHelper.isNumber(from)) {
+                        sheetMapping.setIndex(Integer.valueOf(from));
+                    }
                     sheetMappingMap.put(from, sheetMapping);
                     sheetMapping.setExcelMapping(excelMapping);
                 }
@@ -109,6 +112,9 @@ public class ClientMapping {
             // 查询结果来自哪个Sheet (from Sheet1)
             String from = operationKeyMap.get(OperationKey.FROM);
             sheetMapping.setName(from);
+            if (ExcelHelper.isNumber(from)) {
+                sheetMapping.setIndex(Integer.valueOf(from));
+            }
             sheetMapping.setDataKey(from);
 
             // 分页查询 (limit 10,10)

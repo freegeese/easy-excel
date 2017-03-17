@@ -24,30 +24,24 @@ public class ExcelTemplate implements ExcelOperations {
         Collection<SheetMapping> sheetMappings = excelMapping.getSheetMappings();
         Assert.notEmpty(sheetMappings);
         Map returnValue = new LinkedHashMap();
+        Sheet sheet = null;
         for (SheetMapping sheetMapping : sheetMappings) {
             // 根据名称获取真实的Sheet
             String name = sheetMapping.getName();
             if (null != name) {
-                Sheet sheet = workbook.getSheet(name);
-                Assert.notNull(sheet, "根据名称:[%s]未获取到Sheet", name);
-//                Object sheetData = readSheet(sheet, sheetMapping);
-                Object sheetData = ExcelOperationsProxyFactory.getProxy().readSheet(sheet, sheetMapping);
-                returnValue.put(sheetMapping.getDataKey(), sheetData);
-                continue;
+                sheet = workbook.getSheet(name);
+                if (null == sheet) {
+                    // 根据名称未获取到，再根据索引获取
+                    Integer index = sheetMapping.getIndex();
+                    if (null != index) {
+                        sheet = workbook.getSheetAt(index);
+                    }
+                }
             }
-            // 根据索引获取真实的Sheet
-            Integer index = sheetMapping.getIndex();
-            if (null != index) {
-                Sheet sheet = workbook.getSheetAt(index);
-                Assert.notNull(sheet, "根据索引:[%s]未获取到Sheet", index);
-//                Object sheetData = readSheet(sheet, sheetMapping);
-                Object sheetData = ExcelOperationsProxyFactory.getProxy().readSheet(sheet, sheetMapping);
-                returnValue.put(sheetMapping.getDataKey(), sheetData);
-                continue;
-            }
+            Assert.notNull(sheet, "根据名:[%s]未获取到Sheet", name);
+            Object sheetData = ExcelOperationsProxyFactory.getProxy().readSheet(sheet, sheetMapping);
+            returnValue.put(sheetMapping.getDataKey(), sheetData);
             // TODO: 获取workbook中所有的sheet    2017/3/11 workbook.iterator()
-            // 根据名称和索引均未找到Sheet
-            throw new IllegalArgumentException("不能获取到Sheet, 根据SheetMapping的映射信息");
         }
         return returnValue;
     }
@@ -65,9 +59,8 @@ public class ExcelTemplate implements ExcelOperations {
             startRow = (null == startRow) ? 0 : startRow;
             // 结束行
             Integer endRow = sheetMapping.getEndRow();
-            int lastRowNum = sheet.getLastRowNum();
-            endRow = (null == endRow) ? lastRowNum : endRow;
-            endRow = Math.min(endRow, lastRowNum);
+            int lastRowNum = sheet.getLastRowNum() + 1;
+            endRow = (null == endRow) ? lastRowNum : Math.min(endRow, lastRowNum);
             // 迭代行
             List tableData = new ArrayList();
             for (int i = startRow; i < endRow; i++) {
