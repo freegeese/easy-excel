@@ -35,7 +35,7 @@ public class ExcelOperationsProxy implements InvocationHandler {
                 readBeforeFilterChain = sheetMapping.getExcelMapping().getRowBeforeReadFilterChain(sheetMapping.getName());
             }
             if (null != readBeforeFilterChain && !readBeforeFilterChain.isEmpty()) {
-                if (!readBeforeFilterChain.doFilter(args[0], null, mapping)) {
+                if (!readBeforeFilterChain.doFilter(args[0], null, mapping, ExcelTemplate.getContext())) {
                     return ExcelOperations.EXCEL_NOT_FILTERED;
                 }
             }
@@ -57,7 +57,7 @@ public class ExcelOperationsProxy implements InvocationHandler {
                 readAfterFilterChain = sheetMapping.getExcelMapping().getRowAfterReadFilterChain(sheetMapping.getName());
             }
             if (null != readAfterFilterChain && !readAfterFilterChain.isEmpty()) {
-                if (!readAfterFilterChain.doFilter(args[0], returnValue, mapping)) {
+                if (!readAfterFilterChain.doFilter(args[0], returnValue, mapping, ExcelTemplate.getContext())) {
                     return ExcelOperations.EXCEL_NOT_FILTERED;
                 }
             }

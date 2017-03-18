@@ -3,6 +3,7 @@ package com.geese.plugin.excel.filter;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 过滤链，可以添加多个过滤器
@@ -40,11 +41,12 @@ public class FilterChain<T, M> {
      * @param target
      * @param data
      * @param config
+     * @param context
      */
-    public boolean doFilter(T target, Object data, M config) {
+    public boolean doFilter(T target, Object data, M config, Map context) {
         if (!filterList.isEmpty()) {
             for (Filter filter : filterList) {
-                if (!filter.doFilter(target, data, config)) {
+                if (!filter.doFilter(target, data, config, context)) {
                     return false;
                 }
             }

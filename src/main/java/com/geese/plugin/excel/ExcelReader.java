@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class ExcelReader {
 
     public static ExcelReader newInstance(InputStream excelInput) {
         ExcelReader instance = new ExcelReader();
-        instance.getClientMapping().setExcelInput(excelInput);
+        instance.clientMapping.setExcelInput(excelInput);
         return instance;
     }
 
@@ -45,32 +46,30 @@ public class ExcelReader {
     }
 
     public ExcelReader filter(Filter filter, String switchSheet) {
-        getClientMapping().addFilter(filter, switchSheet);
+        clientMapping.addFilter(filter, switchSheet);
         return this;
     }
 
-    public ExcelReader filters(List<Filter> filters, String switchSheet) {
-        getClientMapping().addFilters(filters, switchSheet);
+    public ExcelReader filters(Filter[] filters, String switchSheet) {
+        return filters(Arrays.asList(filters), switchSheet);
+    }
+
+    public ExcelReader filters(Collection<Filter> filters, String switchSheet) {
+        clientMapping.addFilters(filters, switchSheet);
         return this;
     }
 
-    public Map execute() throws IOException, InvalidFormatException {
-        // 客户输入
-        ClientMapping clientMapping = getClientMapping();
+    public ExcelResult execute() throws IOException, InvalidFormatException {
         // 把客户输入转换为Excel映射信息
         ExcelMapping excelMapping = clientMapping.parseClientInput();
         // 创建Workbook
         Workbook workbook = WorkbookFactory.create(clientMapping.getExcelInput());
         // Excel操作接口代理
         ExcelOperations proxy = ExcelOperationsProxyFactory.getProxy();
-        return (Map) proxy.readExcel(workbook, excelMapping);
-    }
-
-    public ClientMapping getClientMapping() {
-        return clientMapping;
-    }
-
-    public void setClientMapping(ClientMapping clientMapping) {
-        this.clientMapping = clientMapping;
+        Map data = (Map) proxy.readExcel(workbook, excelMapping);
+        ExcelResult excelResult = new ExcelResult();
+        excelResult.setData(data);
+        excelResult.setContext(ExcelTemplate.getContext());
+        return excelResult;
     }
 }

@@ -12,11 +12,25 @@ import org.apache.poi.ss.usermodel.Workbook;
 import java.util.*;
 
 /**
- * Created by Administrator on 2017/3/11.
+ * Excel操作接口模板
  */
 public class ExcelTemplate implements ExcelOperations {
-    public static final String TABLE_DATA_KEY = "tableData";
-    public static final String POINT_DATA_KEY = "pointData";
+
+    // 本地的线程变量
+    private static final ThreadLocal<Map> localContext = new ThreadLocal<Map>() {
+        @Override
+        protected Map initialValue() {
+            return new LinkedHashMap<>();
+        }
+    };
+
+    public static Map getContext() {
+        return localContext.get();
+    }
+
+    public static void setContext(Map context) {
+        localContext.set(context);
+    }
 
     @Override
     public Object readExcel(Workbook workbook, ExcelMapping excelMapping) {
@@ -38,7 +52,7 @@ public class ExcelTemplate implements ExcelOperations {
                     }
                 }
             }
-            Assert.notNull(sheet, "根据名:[%s]未获取到Sheet", name);
+            Assert.notNull(sheet, "根据名称:[%s]未获取到Sheet", name);
             Object sheetData = ExcelOperationsProxyFactory.getProxy().readSheet(sheet, sheetMapping);
             returnValue.put(sheetMapping.getDataKey(), sheetData);
             // TODO: 获取workbook中所有的sheet    2017/3/11 workbook.iterator()
@@ -66,31 +80,30 @@ public class ExcelTemplate implements ExcelOperations {
             for (int i = startRow; i < endRow; i++) {
                 Row row = sheet.getRow(i);
                 Object rowData = ExcelOperationsProxyFactory.getProxy().readRow(row, sheetMapping);
-//                Object rowData = readRow(row, sheetMapping);
                 // 过滤未通过
                 if (EXCEL_NOT_FILTERED.equals(rowData)) {
-                    returnValue.put(TABLE_DATA_KEY, tableData);
+                    returnValue.put(ExcelResult.TABLE_DATA_KEY, tableData);
                     return returnValue;
                 }
                 tableData.add(rowData);
             }
-            returnValue.put(TABLE_DATA_KEY, tableData);
+            returnValue.put(ExcelResult.TABLE_DATA_KEY, tableData);
         }
 
         // 读取Map数据（散列点）
-        List<CellMapping> mapPoints = sheetMapping.getPoints();
-        if (null != mapPoints && !mapPoints.isEmpty()) {
+        List<CellMapping> points = sheetMapping.getPoints();
+        if (null != points && !points.isEmpty()) {
             Map mapPointsData = new LinkedHashMap();
-            for (CellMapping mapPoint : mapPoints) {
+            for (CellMapping point : points) {
                 // 行号
-                Integer rowNumber = mapPoint.getRowNumber();
+                Integer rowNumber = point.getRowNumber();
                 // 列号
-                Integer columnNumber = mapPoint.getColumnNumber();
+                Integer columnNumber = point.getColumnNumber();
                 Cell cell = sheet.getRow(rowNumber).getCell(columnNumber);
-                Object cellData = readCell(cell, mapPoint);
-                mapPointsData.put(mapPoint.getDataKey(), cellData);
+                Object cellData = readCell(cell, point);
+                mapPointsData.put(point.getDataKey(), cellData);
             }
-            returnValue.put(POINT_DATA_KEY, mapPointsData);
+            returnValue.put(ExcelResult.POINT_DATA_KEY, mapPointsData);
         }
 
         return returnValue;
