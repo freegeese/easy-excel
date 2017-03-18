@@ -4,6 +4,7 @@ import com.geese.plugin.excel.mapping.CellMapping;
 import com.geese.plugin.excel.mapping.ExcelMapping;
 import com.geese.plugin.excel.mapping.SheetMapping;
 import com.geese.plugin.excel.util.Assert;
+import com.sun.istack.internal.logging.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -15,6 +16,7 @@ import java.util.*;
  * Excel操作接口模板
  */
 public class ExcelTemplate implements ExcelOperations {
+    private final static Logger logger = Logger.getLogger(ExcelTemplate.class);
 
     // 本地的线程变量
     private static final ThreadLocal<Map> localContext = new ThreadLocal<Map>() {
@@ -55,7 +57,6 @@ public class ExcelTemplate implements ExcelOperations {
             Assert.notNull(sheet, "根据名称:[%s]未获取到Sheet", name);
             Object sheetData = ExcelOperationsProxyFactory.getProxy().readSheet(sheet, sheetMapping);
             returnValue.put(sheetMapping.getDataKey(), sheetData);
-            // TODO: 获取workbook中所有的sheet    2017/3/11 workbook.iterator()
         }
         return returnValue;
     }
@@ -132,21 +133,92 @@ public class ExcelTemplate implements ExcelOperations {
 
     @Override
     public void write(Workbook workbook, ExcelMapping excelMapping) {
-        throw new UnsupportedOperationException();
+        Assert.notNull(workbook, excelMapping);
+        Collection<SheetMapping> sheetMappings = excelMapping.getSheetMappings();
+        Assert.notEmpty(sheetMappings);
+        for (SheetMapping sheetMapping : sheetMappings) {
+            Sheet sheet = getRawSheet(workbook, sheetMapping);
+            Assert.notNull(sheet, "根据名称:[%s]未获取到Sheet", sheetMapping.getName());
+            write(sheet, sheetMapping);
+        }
+    }
+
+    /**
+     * 获取真实的sheet
+     *
+     * @param workbook
+     * @param sheetMapping
+     * @return
+     */
+    private Sheet getRawSheet(Workbook workbook, SheetMapping sheetMapping) {
+        // 根据名称获取sheet
+        String name = sheetMapping.getName();
+        if (null != name) {
+            Sheet sheet = workbook.getSheet(name);
+            if (null != sheet) {
+                sheetMapping.setIndex(workbook.getSheetIndex(sheet));
+                return sheet;
+            }
+        }
+        // 根据下标获取sheet
+        Integer index = sheetMapping.getIndex();
+        if (null != index) {
+            Sheet sheet = workbook.getSheetAt(index);
+            if (null != sheet) {
+                sheetMapping.setName(sheet.getSheetName());
+                return sheet;
+            }
+        }
+        return null;
     }
 
     @Override
     public void write(Sheet sheet, SheetMapping sheetMapping) {
-        throw new UnsupportedOperationException();
+        // 处理表格数据
+        List<Map> tableData = sheetMapping.getTableData();
+        if (null != tableData && !tableData.isEmpty()) {
+            // 开始行
+            Integer startRow = sheetMapping.getStartRow();
+            startRow = (null == startRow) ? 0 : startRow;
+            // 结束行
+            Integer endRow = sheetMapping.getEndRow();
+            endRow = (null == endRow) ? tableData.size() : Math.min(endRow, tableData.size());
+            for (int i = startRow; i < endRow; i++) {
+                Row row = ExcelHelper.createRow(sheet, i);
+                Map rowData = tableData.get(i - startRow);
+                write(row, sheetMapping, rowData);
+            }
+        }
+        // 处理散列数据
+        List<CellMapping> points = sheetMapping.getPoints();
+        if (null != points && !points.isEmpty()) {
+            for (CellMapping point : points) {
+                Integer rowNumber = point.getRowNumber();
+                Integer columnNumber = point.getColumnNumber();
+                Row row = ExcelHelper.createRow(sheet, rowNumber);
+                Cell cell = ExcelHelper.createCell(row, columnNumber);
+                write(cell, sheetMapping, point.getData());
+            }
+        }
     }
 
     @Override
-    public void write(Row row, SheetMapping sheetMapping, Object data) {
-        throw new UnsupportedOperationException();
+    public void write(Row row, SheetMapping sheetMapping, Map data) {
+        List<CellMapping> tableHeads = sheetMapping.getTableHeads();
+        for (CellMapping head : tableHeads) {
+            if (data.containsKey(head.getDataKey())) {
+                Object cellData = data.get(head.getDataKey());
+                Integer columnNumber = head.getColumnNumber();
+                Cell cell = ExcelHelper.createCell(row, columnNumber);
+                write(cell, sheetMapping, cellData);
+                continue;
+            }
+            logger.warning("数据：" + data + ", 不包含列：" + head.getDataKey());
+        }
     }
 
     @Override
     public void write(Cell cell, SheetMapping sheetMapping, Object data) {
-        throw new UnsupportedOperationException();
+        ExcelHelper.setCellValue(cell, data);
     }
 }

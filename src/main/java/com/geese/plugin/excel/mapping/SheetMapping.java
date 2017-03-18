@@ -3,6 +3,7 @@ package com.geese.plugin.excel.mapping;
 import com.geese.plugin.excel.filter.Filterable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**

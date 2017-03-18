@@ -8,6 +8,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import java.util.Map;
+
 /**
  * ExcelMapping 操作接口定义
  */
@@ -73,7 +75,7 @@ public interface ExcelOperations {
      * @param sheetMapping
      * @param data
      */
-    void write(Row row, SheetMapping sheetMapping, Object data);
+    void write(Row row, SheetMapping sheetMapping, Map data);
 
     /**
      * 写入Cell

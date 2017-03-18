@@ -14,6 +14,24 @@ public final class Assert {
     private Assert() {
     }
 
+    public static void isTrue(boolean state) {
+        if (!state) {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public static void isTrue(boolean state, String errorMessage) {
+        if (!state) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    public static void isTrue(boolean state, String errorMessageTemplate, String... errorMessageArgs) {
+        if (!state) {
+            throw new IllegalArgumentException(format(errorMessageTemplate, errorMessageArgs));
+        }
+    }
+
     public static <T> T notNull(T reference) {
         if (reference == null) {
             throw new NullPointerException();
