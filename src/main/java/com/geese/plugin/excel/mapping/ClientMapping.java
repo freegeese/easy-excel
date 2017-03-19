@@ -3,6 +3,7 @@ package com.geese.plugin.excel.mapping;
 import com.geese.plugin.excel.ExcelHelper;
 import com.geese.plugin.excel.OperationKey;
 import com.geese.plugin.excel.filter.Filter;
+import com.geese.plugin.excel.filter.ReadFilter;
 import com.geese.plugin.excel.util.Assert;
 
 import java.io.File;
@@ -165,11 +166,12 @@ public class ClientMapping {
             // 分页查询 (limit 10,10)
             String limit = operationKeyMap.get(OperationKey.LIMIT);
             if (null != limit) {
-                String[] startAndSize = limit.trim().split(",");
-                sheetMapping.setStartRow(Integer.valueOf(startAndSize[0].trim()));
-                if (startAndSize.length == 2) {
-                    Integer size = Integer.valueOf(startAndSize[1].trim());
-                    sheetMapping.setEndRow(sheetMapping.getStartRow() + size);
+                String[] items = limit.trim().split(",");
+                // 开始行
+                sheetMapping.setStartRow(Integer.valueOf(items[0].trim()));
+                if (items.length == 2) {
+                    // 行间隔
+                    sheetMapping.setRowInterval(Integer.valueOf(items[1].trim()));
                 }
             }
             sheetMapping.setTableData(sheetAndTableDataMap.get(into));
@@ -288,7 +290,6 @@ public class ClientMapping {
     public void setQueries(List<String> queries) {
         this.queries = queries;
     }
-
 
     public List<String> getInserts() {
         return inserts;

@@ -1,5 +1,6 @@
 package com.geese.plugin.excel.filter.read;
 
+import com.geese.plugin.excel.filter.ReadFilter;
 import com.geese.plugin.excel.filter.RowFilter;
 import com.geese.plugin.excel.mapping.SheetMapping;
 import org.apache.poi.ss.usermodel.Row;
@@ -11,5 +12,5 @@ import org.apache.poi.ss.usermodel.Row;
  * @date 2016/11/16 16:22
  * @sine 0.0.1
  */
-public interface RowBeforeReadFilter extends RowFilter<Row, SheetMapping> {
+public interface RowBeforeReadFilter extends RowFilter<Row, SheetMapping>, ReadFilter<Row, SheetMapping> {
 }

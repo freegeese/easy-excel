@@ -14,7 +14,7 @@ import java.util.Map;
  * ExcelMapping 操作接口定义
  */
 public interface ExcelOperations {
-    String EXCEL_NOT_FILTERED = "EXCEL_NOT_FILTERED";
+    String EXCEL_NOT_PASS_FILTERED = "EXCEL_NOT_PASS_FILTERED";
     /**
      * 读取Excel
      *
@@ -58,7 +58,7 @@ public interface ExcelOperations {
      * @param workbook
      * @param excelMapping
      */
-    void write(Workbook workbook, ExcelMapping excelMapping);
+    void writeExcel(Workbook workbook, ExcelMapping excelMapping);
 
     /**
      * 写入Sheet
@@ -66,7 +66,7 @@ public interface ExcelOperations {
      * @param sheet
      * @param sheetMapping
      */
-    void write(Sheet sheet, SheetMapping sheetMapping);
+    void writeSheet(Sheet sheet, SheetMapping sheetMapping);
 
     /**
      * 写入Row
@@ -75,7 +75,7 @@ public interface ExcelOperations {
      * @param sheetMapping
      * @param data
      */
-    void write(Row row, SheetMapping sheetMapping, Map data);
+    void writeRow(Row row, SheetMapping sheetMapping, Map data);
 
     /**
      * 写入Cell
@@ -84,6 +84,6 @@ public interface ExcelOperations {
      * @param sheetMapping
      * @param data
      */
-    void write(Cell cell, SheetMapping sheetMapping, Object data);
+    void writeCell(Cell cell, SheetMapping sheetMapping, Object data);
 
 }

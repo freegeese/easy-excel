@@ -20,20 +20,10 @@ import java.util.*;
  */
 public class ExcelMapping {
 
-    // 模板(用于写入数据)
-    private File template;
     // Sheet 表格映射信息
     private Collection<SheetMapping> sheetMappings;
     // 过滤器
     private Map<String, Collection<Filter>> sheetFiltersMap = new LinkedHashMap<>();
-
-    public File getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(File template) {
-        this.template = template;
-    }
 
     public Collection<SheetMapping> getSheetMappings() {
         return sheetMappings;

@@ -82,7 +82,7 @@ public class ExcelTemplate implements ExcelOperations {
                 Row row = sheet.getRow(i);
                 Object rowData = ExcelOperationsProxyFactory.getProxy().readRow(row, sheetMapping);
                 // 过滤未通过
-                if (EXCEL_NOT_FILTERED.equals(rowData)) {
+                if (EXCEL_NOT_PASS_FILTERED.equals(rowData)) {
                     returnValue.put(ExcelResult.TABLE_DATA_KEY, tableData);
                     return returnValue;
                 }
@@ -132,14 +132,17 @@ public class ExcelTemplate implements ExcelOperations {
     }
 
     @Override
-    public void write(Workbook workbook, ExcelMapping excelMapping) {
+    public void writeExcel(Workbook workbook, ExcelMapping excelMapping) {
         Assert.notNull(workbook, excelMapping);
         Collection<SheetMapping> sheetMappings = excelMapping.getSheetMappings();
         Assert.notEmpty(sheetMappings);
         for (SheetMapping sheetMapping : sheetMappings) {
             Sheet sheet = getRawSheet(workbook, sheetMapping);
-            Assert.notNull(sheet, "根据名称:[%s]未获取到Sheet", sheetMapping.getName());
-            write(sheet, sheetMapping);
+            if (null == sheet) {
+                sheet = workbook.createSheet(sheetMapping.getName());
+                sheetMapping.setIndex(workbook.getSheetIndex(sheet));
+            }
+            ExcelOperationsProxyFactory.getProxy().writeSheet(sheet, sheetMapping);
         }
     }
 
@@ -151,6 +154,11 @@ public class ExcelTemplate implements ExcelOperations {
      * @return
      */
     private Sheet getRawSheet(Workbook workbook, SheetMapping sheetMapping) {
+        Assert.notNull(workbook, sheetMapping);
+        // 该Workbook没有sheet表格
+        if (!workbook.iterator().hasNext()) {
+            return null;
+        }
         // 根据名称获取sheet
         String name = sheetMapping.getName();
         if (null != name) {
@@ -173,20 +181,27 @@ public class ExcelTemplate implements ExcelOperations {
     }
 
     @Override
-    public void write(Sheet sheet, SheetMapping sheetMapping) {
+    public void writeSheet(Sheet sheet, SheetMapping sheetMapping) {
         // 处理表格数据
         List<Map> tableData = sheetMapping.getTableData();
         if (null != tableData && !tableData.isEmpty()) {
             // 开始行
             Integer startRow = sheetMapping.getStartRow();
             startRow = (null == startRow) ? 0 : startRow;
-            // 结束行
-            Integer endRow = sheetMapping.getEndRow();
-            endRow = (null == endRow) ? tableData.size() : Math.min(endRow, tableData.size());
-            for (int i = startRow; i < endRow; i++) {
-                Row row = ExcelHelper.createRow(sheet, i);
-                Map rowData = tableData.get(i - startRow);
-                write(row, sheetMapping, rowData);
+            // 行间隔
+            Integer rowInterval = sheetMapping.getRowInterval();
+            if (null == rowInterval || rowInterval <= 0) {
+                rowInterval = 1;
+            } else {
+                rowInterval++;
+            }
+            for (Map rowData : tableData) {
+                Row row = ExcelHelper.createRow(sheet, startRow);
+                ExcelOperationsProxyFactory.getProxy().writeRow(row, sheetMapping, rowData);
+                if(getContext().containsKey(EXCEL_NOT_PASS_FILTERED)){
+                    return;
+                }
+                startRow += rowInterval;
             }
         }
         // 处理散列数据
@@ -197,20 +212,20 @@ public class ExcelTemplate implements ExcelOperations {
                 Integer columnNumber = point.getColumnNumber();
                 Row row = ExcelHelper.createRow(sheet, rowNumber);
                 Cell cell = ExcelHelper.createCell(row, columnNumber);
-                write(cell, sheetMapping, point.getData());
+                ExcelOperationsProxyFactory.getProxy().writeCell(cell, sheetMapping, point.getData());
             }
         }
     }
 
     @Override
-    public void write(Row row, SheetMapping sheetMapping, Map data) {
+    public void writeRow(Row row, SheetMapping sheetMapping, Map data) {
         List<CellMapping> tableHeads = sheetMapping.getTableHeads();
         for (CellMapping head : tableHeads) {
             if (data.containsKey(head.getDataKey())) {
                 Object cellData = data.get(head.getDataKey());
                 Integer columnNumber = head.getColumnNumber();
                 Cell cell = ExcelHelper.createCell(row, columnNumber);
-                write(cell, sheetMapping, cellData);
+                ExcelOperationsProxyFactory.getProxy().writeCell(cell, sheetMapping, cellData);
                 continue;
             }
             logger.warning("数据：" + data + ", 不包含列：" + head.getDataKey());
@@ -218,7 +233,7 @@ public class ExcelTemplate implements ExcelOperations {
     }
 
     @Override
-    public void write(Cell cell, SheetMapping sheetMapping, Object data) {
+    public void writeCell(Cell cell, SheetMapping sheetMapping, Object data) {
         ExcelHelper.setCellValue(cell, data);
     }
 }

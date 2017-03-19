@@ -1,6 +1,7 @@
 package com.geese.plugin.excel;
 
 import com.geese.plugin.excel.filter.Filter;
+import com.geese.plugin.excel.filter.ReadFilter;
 import com.geese.plugin.excel.mapping.ClientMapping;
 import com.geese.plugin.excel.mapping.ExcelMapping;
 import com.geese.plugin.excel.util.Assert;
@@ -45,17 +46,19 @@ public class ExcelReader {
         return this;
     }
 
-    public ExcelReader filter(Filter filter, String switchSheet) {
+    public ExcelReader filter(ReadFilter filter, String switchSheet) {
         clientMapping.addFilter(filter, switchSheet);
         return this;
     }
 
-    public ExcelReader filters(Filter[] filters, String switchSheet) {
+    public ExcelReader filters(ReadFilter[] filters, String switchSheet) {
         return filters(Arrays.asList(filters), switchSheet);
     }
 
-    public ExcelReader filters(Collection<Filter> filters, String switchSheet) {
-        clientMapping.addFilters(filters, switchSheet);
+    public ExcelReader filters(Collection<ReadFilter> filters, String switchSheet) {
+        for (ReadFilter filter : filters) {
+            clientMapping.addFilter(filter, switchSheet);
+        }
         return this;
     }
 

@@ -1,6 +1,7 @@
 package com.geese.plugin.excel;
 
 import com.geese.plugin.excel.filter.Filter;
+import com.geese.plugin.excel.filter.WriteFilter;
 import com.geese.plugin.excel.mapping.ClientMapping;
 import com.geese.plugin.excel.mapping.ExcelMapping;
 import com.geese.plugin.excel.util.Assert;
@@ -25,15 +26,14 @@ public class ExcelWriter {
     // 处理客户端输入信息
     private ClientMapping clientMapping = new ClientMapping();
 
-
     public static ExcelWriter newInstance(OutputStream excelOutput) {
         ExcelWriter instance = new ExcelWriter();
         instance.clientMapping.setExcelOutput(excelOutput);
         return instance;
     }
 
-    public ExcelWriter useXlsxFormat(boolean useXlsxFormat) {
-        clientMapping.setUseXlsFormat(useXlsxFormat);
+    public ExcelWriter useXlsxFormat() {
+        clientMapping.setUseXlsFormat(false);
         return this;
     }
 
@@ -69,17 +69,19 @@ public class ExcelWriter {
         return this;
     }
 
-    public ExcelWriter filter(Filter filter, String switchSheet) {
+    public ExcelWriter filter(WriteFilter filter, String switchSheet) {
         clientMapping.addFilter(filter, switchSheet);
         return this;
     }
 
-    public ExcelWriter filters(Filter[] filters, String switchSheet) {
+    public ExcelWriter filters(WriteFilter[] filters, String switchSheet) {
         return filters(Arrays.asList(filters), switchSheet);
     }
 
-    public ExcelWriter filters(Collection<Filter> filters, String switchSheet) {
-        clientMapping.addFilters(filters, switchSheet);
+    public ExcelWriter filters(Collection<WriteFilter> filters, String switchSheet) {
+        for (WriteFilter filter : filters) {
+            clientMapping.addFilter(filter, switchSheet);
+        }
         return this;
     }
 
@@ -97,7 +99,8 @@ public class ExcelWriter {
         }
         // Excel操作接口代理
         ExcelOperations proxy = ExcelOperationsProxyFactory.getProxy();
-        proxy.write(workbook, excelMapping);
+        proxy.writeExcel(workbook, excelMapping);
+        workbook.write(clientMapping.getExcelOutput());
         ExcelResult excelResult = new ExcelResult();
         excelResult.setContext(ExcelTemplate.getContext());
         return excelResult;

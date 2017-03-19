@@ -1,6 +1,7 @@
 package com.geese.plugin.excel.filter.write;
 
 import com.geese.plugin.excel.filter.CellFilter;
+import com.geese.plugin.excel.filter.WriteFilter;
 import com.geese.plugin.excel.mapping.CellMapping;
 import org.apache.poi.ss.usermodel.Cell;
 
@@ -11,5 +12,5 @@ import org.apache.poi.ss.usermodel.Cell;
  * @date 2016/11/21 22:13
  * @sine 0.0.2
  */
-public interface CellAfterWriteFilter extends CellFilter<Cell, CellMapping> {
+public interface CellAfterWriteFilter extends CellFilter<Cell, CellMapping>, WriteFilter<Cell, CellMapping> {
 }

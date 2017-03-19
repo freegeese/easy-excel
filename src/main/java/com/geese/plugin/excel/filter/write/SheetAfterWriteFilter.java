@@ -1,6 +1,7 @@
 package com.geese.plugin.excel.filter.write;
 
 import com.geese.plugin.excel.filter.SheetFilter;
+import com.geese.plugin.excel.filter.WriteFilter;
 import com.geese.plugin.excel.mapping.SheetMapping;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -11,5 +12,5 @@ import org.apache.poi.ss.usermodel.Sheet;
  * @date 2016/11/21 22:17
  * @sine 0.0.2
  */
-public interface SheetAfterWriteFilter extends SheetFilter<Sheet, SheetMapping> {
+public interface SheetAfterWriteFilter extends SheetFilter<Sheet, SheetMapping>, WriteFilter<Sheet, SheetMapping> {
 }

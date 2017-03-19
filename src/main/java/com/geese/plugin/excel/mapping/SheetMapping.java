@@ -25,6 +25,9 @@ public class SheetMapping extends Filterable {
     private Integer startRow;
     // 结束行
     private Integer endRow;
+    // 行间隔
+    private Integer rowInterval;
+
     // 表格数据
     private List tableData;
 
@@ -104,5 +107,13 @@ public class SheetMapping extends Filterable {
 
     public void setExcelMapping(ExcelMapping excelMapping) {
         this.excelMapping = excelMapping;
+    }
+
+    public Integer getRowInterval() {
+        return rowInterval;
+    }
+
+    public void setRowInterval(Integer rowInterval) {
+        this.rowInterval = rowInterval;
     }
 }
