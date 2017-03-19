@@ -1,10 +1,10 @@
 package com.geese.plugin.excel;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.POIXMLDocumentPart;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
+import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -449,4 +449,171 @@ public class ExcelHelper {
     public static boolean isNumber(String text) {
         return null != text && text.matches("([0-9])|([1-9]\\d*)");
     }
+
+    /**
+     * 获取Sheet中的图片
+     *
+     * @param sheet
+     * @return key: row_column
+     */
+    public static Map<String, PictureData> getPictures(Sheet sheet) {
+        if (sheet instanceof HSSFSheet) {
+            return getSheetPictures((HSSFSheet) sheet);
+        }
+        return getXSheetPictures((XSSFSheet) sheet);
+    }
+
+    /**
+     * 获取Row中的图片
+     *
+     * @param row
+     * @return key: column
+     */
+    public static Map<Integer, PictureData> getPictures(Row row) {
+        if (row instanceof HSSFRow) {
+            return getSheetPictures((HSSFRow) row);
+        }
+        return getXSheetPictures((XSSFRow) row);
+    }
+
+    /**
+     * 为Cell设置图片
+     *
+     * @param cell
+     * @param pictureData
+     * @return
+     */
+    public static Picture setPicture(Cell cell, byte[] pictureData) {
+        if (null == pictureData || pictureData.length <= 0) {
+            return null;
+        }
+        Sheet sheet = cell.getSheet();
+        Workbook workbook = sheet.getWorkbook();
+        CreationHelper helper = workbook.getCreationHelper();
+
+        // 添加图片到Workbook
+        int pictureIndex = workbook.addPicture(pictureData, Workbook.PICTURE_TYPE_JPEG);
+
+        // 画板，把图片放入某个位置
+        Drawing drawing = sheet.getDrawingPatriarch();
+        if (null == drawing) {
+            drawing = sheet.createDrawingPatriarch();
+        }
+        // 苗点，确定图片位置
+        ClientAnchor anchor = helper.createClientAnchor();
+        anchor.setCol1(cell.getColumnIndex());
+        anchor.setRow1(cell.getRowIndex());
+        Picture picture = drawing.createPicture(anchor, pictureIndex);
+        picture.resize(1.0, 1.0);
+
+        return picture;
+    }
+
+
+    /**
+     * 获取 HSSFSheet中的图片
+     *
+     * @param sheet
+     * @return
+     */
+    private static Map<String, PictureData> getSheetPictures(HSSFSheet sheet) {
+        HSSFWorkbook workbook = sheet.getWorkbook();
+        List<HSSFPictureData> pictures = workbook.getAllPictures();
+        if (pictures.isEmpty()) {
+            return null;
+        }
+        Map<String, PictureData> sheetIndexPicMap = new LinkedHashMap<String, PictureData>();
+        for (HSSFShape shape : sheet.getDrawingPatriarch().getChildren()) {
+            HSSFClientAnchor anchor = (HSSFClientAnchor) shape.getAnchor();
+            if (shape instanceof HSSFPicture) {
+                HSSFPicture pic = (HSSFPicture) shape;
+                int pictureIndex = pic.getPictureIndex() - 1;
+                HSSFPictureData picData = pictures.get(pictureIndex);
+                String picIndex = anchor.getRow1() + "_" + anchor.getCol1();
+                sheetIndexPicMap.put(picIndex, picData);
+            }
+        }
+        return sheetIndexPicMap;
+    }
+
+    private static Map<Integer, PictureData> getSheetPictures(HSSFRow row) {
+        HSSFSheet sheet = row.getSheet();
+        HSSFWorkbook workbook = sheet.getWorkbook();
+        List<HSSFPictureData> pictures = workbook.getAllPictures();
+        if (pictures.isEmpty()) {
+            return null;
+        }
+
+        int resultRowNum = row.getRowNum();
+        Map<Integer, PictureData> sheetIndexPicMap = new LinkedHashMap<Integer, PictureData>();
+        for (HSSFShape shape : sheet.getDrawingPatriarch().getChildren()) {
+            HSSFClientAnchor anchor = (HSSFClientAnchor) shape.getAnchor();
+            if (shape instanceof HSSFPicture && resultRowNum == anchor.getRow1()) {
+                HSSFPicture pic = (HSSFPicture) shape;
+                int pictureIndex = pic.getPictureIndex() - 1;
+                HSSFPictureData picData = pictures.get(pictureIndex);
+                sheetIndexPicMap.put(Integer.valueOf(anchor.getCol1()), picData);
+            }
+        }
+        return sheetIndexPicMap;
+    }
+
+    /**
+     * 获取 XSSFSheet 中的图片
+     *
+     * @param sheet
+     * @return
+     */
+    private static Map<String, PictureData> getXSheetPictures(XSSFSheet sheet) {
+        List<POIXMLDocumentPart> relations = sheet.getRelations();
+        if (relations.isEmpty()) {
+            return null;
+        }
+
+        Map<String, PictureData> sheetIndexPicMap = new LinkedHashMap<String, PictureData>();
+        for (POIXMLDocumentPart documentPart : relations) {
+            if (documentPart instanceof XSSFDrawing) {
+                XSSFDrawing drawing = (XSSFDrawing) documentPart;
+                List<XSSFShape> shapes = drawing.getShapes();
+                for (XSSFShape shape : shapes) {
+                    XSSFPicture pic = (XSSFPicture) shape;
+                    XSSFClientAnchor anchor = pic.getPreferredSize();
+                    CTMarker ctMarker = anchor.getFrom();
+                    int rowNum = ctMarker.getRow();
+
+                    String picIndex = rowNum + "_" + ctMarker.getCol();
+                    sheetIndexPicMap.put(picIndex, pic.getPictureData());
+                }
+            }
+        }
+        return sheetIndexPicMap;
+    }
+
+    private static Map<Integer, PictureData> getXSheetPictures(XSSFRow row) {
+        XSSFSheet sheet = row.getSheet();
+        List<POIXMLDocumentPart> relations = sheet.getRelations();
+        if (relations.isEmpty()) {
+            return null;
+        }
+
+        int resultRowNum = row.getRowNum();
+        Map<Integer, PictureData> sheetIndexPicMap = new LinkedHashMap<Integer, PictureData>();
+        for (POIXMLDocumentPart documentPart : relations) {
+            if (documentPart instanceof XSSFDrawing) {
+                XSSFDrawing drawing = (XSSFDrawing) documentPart;
+                List<XSSFShape> shapes = drawing.getShapes();
+                for (XSSFShape shape : shapes) {
+                    XSSFPicture pic = (XSSFPicture) shape;
+                    XSSFClientAnchor anchor = pic.getPreferredSize();
+                    CTMarker ctMarker = anchor.getFrom();
+                    int rowNum = ctMarker.getRow();
+                    if (rowNum == resultRowNum) {
+                        sheetIndexPicMap.put(ctMarker.getCol(), pic.getPictureData());
+                    }
+                }
+            }
+        }
+        return sheetIndexPicMap;
+    }
+
 }
