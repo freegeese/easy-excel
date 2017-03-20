@@ -82,7 +82,9 @@ public class ExcelOperationsProxy implements InvocationHandler {
             if ("readRow".equals(name)) {
                 sheetMapping = (SheetMapping) args[1];
                 // 图片处理
-                readPicture((Row) args[0], sheetMapping, (Map) returnValue);
+                if (null != args[0]) {
+                    readPicture((Row) args[0], sheetMapping, (Map) returnValue);
+                }
                 filterChain = sheetMapping.getExcelMapping().getRowAfterReadFilterChain(sheetMapping.getName());
             }
             if ("readCell".equals(name)) {
@@ -165,7 +167,12 @@ public class ExcelOperationsProxy implements InvocationHandler {
             for (Map.Entry<String, Object> entry : rowData.entrySet()) {
                 Object cellData = entry.getValue();
                 if (cellData instanceof byte[]) {
-                    Cell cell = row.getCell(headNameAndHeadIndexMap.get(entry.getKey()));
+                    if (!headNameAndHeadIndexMap.containsKey(entry.getKey())) {
+                        // 没有找到对应的列
+                        continue;
+                    }
+                    Integer cellNumber = headNameAndHeadIndexMap.get(entry.getKey());
+                    Cell cell = ExcelHelper.createCell(row, cellNumber);
                     ExcelHelper.setPicture(cell, (byte[]) cellData);
                 }
             }

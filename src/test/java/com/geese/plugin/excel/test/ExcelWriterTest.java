@@ -2,9 +2,7 @@ package com.geese.plugin.excel.test;
 
 import com.geese.plugin.excel.ExcelResult;
 import com.geese.plugin.excel.ExcelWriter;
-import com.geese.plugin.excel.filter.Filter;
 import com.geese.plugin.excel.filter.WriteFilter;
-import com.geese.plugin.excel.filter.read.RowAfterReadFilter;
 import com.geese.plugin.excel.filter.write.RowAfterWriteFilter;
 import com.geese.plugin.excel.filter.write.RowBeforeWriteFilter;
 import com.geese.plugin.excel.mapping.SheetMapping;
@@ -19,6 +17,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -134,6 +134,52 @@ public class ExcelWriterTest {
                 .setTemplate(excelTemplate)
                 .useXlsxFormat()
                 .execute();
+    }
+
+    @Test
+    public void testPicture() throws IOException, InvalidFormatException {
+        ExcelWriter.newInstance(excelOutput)
+                .insert("p1, p2, p3 into Sheet1", "{0-6 p6, 0-7 p7 into Sheet1}")
+                .addData(generateTablePictureData(), "Sheet1")
+                .addData(generatePointPictureData(), "Sheet1")
+                .setTemplate(excelTemplate)
+                .useXlsxFormat()
+                .execute();
+    }
+
+    private List<Map> generateTablePictureData() throws IOException {
+        URL url = Thread.currentThread().getContextClassLoader().getResource("images");
+        String path = url.getPath();
+        File imagesDirectory = new File(path);
+        File[] files = imagesDirectory.listFiles();
+        List<Map> returnValue = new ArrayList<>();
+        Map<String, Object> rowData = new LinkedHashMap<>();
+        returnValue.add(rowData);
+        int index = 1;
+        for (File file : files) {
+            if (index % 5 == 0) {
+                rowData = new LinkedHashMap<>();
+                returnValue.add(rowData);
+                index = 1;
+            }
+            byte[] bytes = Files.readAllBytes(Paths.get(file.getPath()));
+            rowData.put("p" + (index++), bytes);
+        }
+        return returnValue;
+    }
+
+    private Map generatePointPictureData() throws IOException {
+        URL url = Thread.currentThread().getContextClassLoader().getResource("images");
+        String path = url.getPath();
+        File imagesDirectory = new File(path);
+        File[] files = imagesDirectory.listFiles();
+        Map<String, Object> pointPictureData = new LinkedHashMap<>();
+        int index = 1;
+        for (File file : files) {
+            byte[] bytes = Files.readAllBytes(Paths.get(file.getPath()));
+            pointPictureData.put("p" + (index++), bytes);
+        }
+        return pointPictureData;
     }
 
     private Map generatePointData() {

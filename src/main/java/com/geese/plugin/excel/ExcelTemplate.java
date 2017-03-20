@@ -100,9 +100,16 @@ public class ExcelTemplate implements ExcelOperations {
                 Integer rowNumber = point.getRowNumber();
                 // 列号
                 Integer columnNumber = point.getColumnNumber();
-                Cell cell = sheet.getRow(rowNumber).getCell(columnNumber);
-                Object cellData = readCell(cell, point);
+                Row row = sheet.getRow(rowNumber);
+                Object cellData = null;
+                if (null != row) {
+                    Cell cell = row.getCell(columnNumber);
+                    if (null != cell) {
+                        cellData = readCell(cell, point);
+                    }
+                }
                 mapPointsData.put(point.getDataKey(), cellData);
+
             }
             returnValue.put(ExcelResult.POINT_DATA_KEY, mapPointsData);
         }
@@ -112,7 +119,9 @@ public class ExcelTemplate implements ExcelOperations {
 
     @Override
     public Object readRow(Row row, SheetMapping sheetMapping) {
-        Assert.notNull(row, sheetMapping);
+        if (null == row) {
+            return null;
+        }
         List<CellMapping> tableHeads = sheetMapping.getTableHeads();
         Assert.notEmpty(tableHeads);
 
@@ -198,7 +207,7 @@ public class ExcelTemplate implements ExcelOperations {
             for (Map rowData : tableData) {
                 Row row = ExcelHelper.createRow(sheet, startRow);
                 ExcelOperationsProxyFactory.getProxy().writeRow(row, sheetMapping, rowData);
-                if(getContext().containsKey(EXCEL_NOT_PASS_FILTERED)){
+                if (getContext().containsKey(EXCEL_NOT_PASS_FILTERED)) {
                     return;
                 }
                 startRow += rowInterval;

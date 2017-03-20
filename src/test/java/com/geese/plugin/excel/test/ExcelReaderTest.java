@@ -120,4 +120,13 @@ public class ExcelReaderTest {
         System.out.println(result.getContext());
     }
 
+    @Test
+    public void testReadPicture() throws IOException, InvalidFormatException {
+        ExcelResult result = ExcelReader.newInstance(excelFrom)
+                .select("a,b,c,d from Sheet2", "{3-2 图片 from Sheet2}")
+                .execute();
+        System.out.println(result.getTableData());
+        System.out.println(result.getPointData());
+    }
+
 }
