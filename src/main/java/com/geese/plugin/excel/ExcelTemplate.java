@@ -4,19 +4,19 @@ import com.geese.plugin.excel.mapping.CellMapping;
 import com.geese.plugin.excel.mapping.ExcelMapping;
 import com.geese.plugin.excel.mapping.SheetMapping;
 import com.geese.plugin.excel.util.Assert;
-import com.sun.istack.internal.logging.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Excel操作接口模板
  */
 public class ExcelTemplate implements ExcelOperations {
-    private final static Logger logger = Logger.getLogger(ExcelTemplate.class);
+    private final static Logger logger = Logger.getLogger(ExcelTemplate.class.getName());
 
     // 本地的线程变量
     private static final ThreadLocal<Map> localContext = new ThreadLocal<Map>() {
