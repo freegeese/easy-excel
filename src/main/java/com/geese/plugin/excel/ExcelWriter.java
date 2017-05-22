@@ -7,6 +7,7 @@ import com.geese.plugin.excel.mapping.ExcelMapping;
 import com.geese.plugin.excel.util.Assert;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -69,6 +70,17 @@ public class ExcelWriter {
         return this;
     }
 
+    public ExcelWriter addValidation(ExcelValidation validation, String switchSheet) {
+        clientMapping.addValidation(validation, switchSheet);
+        return this;
+    }
+
+    public ExcelWriter addValidations(Collection<ExcelValidation> validations, String switchSheet) {
+        clientMapping.addValidations(validations, switchSheet);
+        return this;
+    }
+
+
     public ExcelWriter filter(WriteFilter filter, String switchSheet) {
         clientMapping.addFilter(filter, switchSheet);
         return this;
@@ -86,8 +98,6 @@ public class ExcelWriter {
     }
 
     public ExcelResult execute() throws IOException, InvalidFormatException {
-        // 把客户输入转换为Excel映射信息
-        ExcelMapping excelMapping = clientMapping.parseClientInput();
         // 创建Workbook
         File template = clientMapping.getExcelOutputTemplate();
         Workbook workbook = null;
@@ -97,6 +107,30 @@ public class ExcelWriter {
         if (null == workbook) {
             workbook = clientMapping.getUseXlsFormat() ? new HSSFWorkbook() : new XSSFWorkbook();
         }
+        // Excel 数据校验
+        Map<String, Collection<ExcelValidation>> sheetAndValidationMap = clientMapping.getSheetAndValidationMap();
+        if (!sheetAndValidationMap.isEmpty()) {
+            for (Map.Entry<String, Collection<ExcelValidation>> entry : sheetAndValidationMap.entrySet()) {
+                String key = entry.getKey();
+                Sheet sheet = workbook.getSheet(key);
+                if (null == sheet && ExcelHelper.isNumber(key)) {
+                    sheet = workbook.getSheetAt(Integer.valueOf(key));
+                }
+                Collection<ExcelValidation> validations = entry.getValue();
+                for (ExcelValidation validation : validations) {
+                    validation.addToSheet(sheet);
+                }
+            }
+        }
+        // 如果两者都为空，则不进行读写操作
+        if (clientMapping.getInserts().isEmpty() && clientMapping.getQueries().isEmpty()) {
+            workbook.write(clientMapping.getExcelOutput());
+            return null;
+        }
+
+        // 把客户输入转换为Excel映射信息
+        ExcelMapping excelMapping = clientMapping.parseClientInput();
+
         // Excel操作接口代理
         ExcelOperations proxy = ExcelOperationsProxyFactory.getProxy();
         proxy.writeExcel(workbook, excelMapping);

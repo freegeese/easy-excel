@@ -1,6 +1,7 @@
 package com.geese.plugin.excel.test;
 
 import com.geese.plugin.excel.ExcelResult;
+import com.geese.plugin.excel.ExcelValidation;
 import com.geese.plugin.excel.ExcelWriter;
 import com.geese.plugin.excel.filter.WriteFilter;
 import com.geese.plugin.excel.filter.write.RowAfterWriteFilter;
@@ -124,6 +125,14 @@ public class ExcelWriterTest {
         // 一次写操作的上下文信息
         Map context = result.getContext();
         System.out.println(context);
+    }
+
+    @Test
+    public void testTemplateValidation() throws IOException, InvalidFormatException {
+        ExcelWriter.newInstance(excelOutput)
+                .setTemplate(excelTemplate)
+                .addValidation(new ExcelValidation(1, 20, 0, 0, Arrays.asList("1", "2")), "0")
+                .execute();
     }
 
     @Test

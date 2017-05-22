@@ -1,6 +1,7 @@
 package com.geese.plugin.excel.mapping;
 
 import com.geese.plugin.excel.ExcelHelper;
+import com.geese.plugin.excel.ExcelValidation;
 import com.geese.plugin.excel.OperationKey;
 import com.geese.plugin.excel.filter.Filter;
 import com.geese.plugin.excel.filter.ReadFilter;
@@ -25,8 +26,29 @@ public class ClientMapping {
     private File excelOutputTemplate;
     private Map<String, List<Map>> sheetAndTableDataMap = new LinkedHashMap<>();
     private Map<String, Map> sheetAndPointDataMap = new LinkedHashMap<>();
+    private Map<String, Collection<ExcelValidation>> sheetAndValidationMap = new LinkedHashMap<>();
 
     private Map<String, Collection<Filter>> sheetFiltersMap = new LinkedHashMap<>();
+
+    public ClientMapping addValidation(ExcelValidation validation, String switchSheet) {
+        if (sheetAndValidationMap.containsKey(switchSheet)) {
+            sheetAndValidationMap.get(switchSheet).add(validation);
+            return this;
+        }
+        Set<ExcelValidation> validations = new LinkedHashSet<>();
+        validations.add(validation);
+        sheetAndValidationMap.put(switchSheet, validations);
+        return this;
+    }
+
+    public ClientMapping addValidations(Collection<ExcelValidation> validations, String switchSheet) {
+        if (sheetAndValidationMap.containsKey(switchSheet)) {
+            sheetAndValidationMap.get(switchSheet).addAll(validations);
+            return this;
+        }
+        sheetAndValidationMap.put(switchSheet, validations);
+        return this;
+    }
 
     public ClientMapping addFilter(Filter filter, String switchSheet) {
         if (sheetFiltersMap.containsKey(switchSheet)) {
@@ -331,5 +353,11 @@ public class ClientMapping {
         this.sheetFiltersMap = sheetFiltersMap;
     }
 
+    public Map<String, Collection<ExcelValidation>> getSheetAndValidationMap() {
+        return sheetAndValidationMap;
+    }
 
+    public void setSheetAndValidationMap(Map<String, Collection<ExcelValidation>> sheetAndValidationMap) {
+        this.sheetAndValidationMap = sheetAndValidationMap;
+    }
 }

@@ -447,7 +447,7 @@ public class ExcelHelper {
     }
 
     public static boolean isNumber(String text) {
-        return null != text && text.matches("([0-9])|([1-9]\\d*)");
+        return null != text && text.matches("([0-9])|([1-9][0-9]\\d*)");
     }
 
     /**
@@ -511,7 +511,7 @@ public class ExcelHelper {
 
 
     /**
-     * 获取 HSSFSheet中的图片
+     * 获取 HSSFSheet 中的图片
      *
      * @param sheet
      * @return
@@ -536,6 +536,12 @@ public class ExcelHelper {
         return sheetIndexPicMap;
     }
 
+    /**
+     * 获取 HSSFRow 中的图片数据
+     *
+     * @param row
+     * @return
+     */
     private static Map<Integer, PictureData> getSheetPictures(HSSFRow row) {
         HSSFSheet sheet = row.getSheet();
         HSSFWorkbook workbook = sheet.getWorkbook();
@@ -589,6 +595,12 @@ public class ExcelHelper {
         return sheetIndexPicMap;
     }
 
+    /**
+     * 获取 XSSFRow 中的图片数据
+     *
+     * @param row
+     * @return
+     */
     private static Map<Integer, PictureData> getXSheetPictures(XSSFRow row) {
         XSSFSheet sheet = row.getSheet();
         List<POIXMLDocumentPart> relations = sheet.getRelations();
