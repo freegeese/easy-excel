@@ -7,8 +7,13 @@ import com.geese.plugin.excel.filter.WriteFilter;
 import com.geese.plugin.excel.filter.write.RowAfterWriteFilter;
 import com.geese.plugin.excel.filter.write.RowBeforeWriteFilter;
 import com.geese.plugin.excel.mapping.SheetMapping;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -128,11 +133,91 @@ public class ExcelWriterTest {
     }
 
     @Test
-    public void testTemplateValidation() throws IOException, InvalidFormatException {
-        ExcelWriter.newInstance(excelOutput)
-                .setTemplate(excelTemplate)
-                .addValidation(new ExcelValidation(1, 20, 0, 0, Arrays.asList("1", "2")), "0")
-                .execute();
+    public void testTemplateValidation() {
+        try {
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                list.add(UUID.randomUUID().toString());
+            }
+            ExcelWriter.newInstance(excelOutput)
+                    .setTemplate(excelTemplate)
+                    .addValidation(new ExcelValidation(1, 20, 0, 0, list), "0")
+                    .execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testLimits() throws Exception {
+        try {
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                list.add(UUID.randomUUID().toString());
+            }
+            HSSFWorkbook wb = new HSSFWorkbook();
+            HSSFSheet sheet = wb.createSheet("new sheet");
+            HSSFRow row = sheet.createRow((short) 0);
+            //CellRangeAddressList from org.apache.poi.ss.util package
+            CellRangeAddressList addressList = new CellRangeAddressList(0, 0, 0, 0);
+            DVConstraint dvConstraint = DVConstraint.createExplicitListConstraint(list.toArray(new String[list.size()]));
+            DataValidation dataValidation = new HSSFDataValidation(addressList, dvConstraint);
+            dataValidation.setSuppressDropDownArrow(false);
+            sheet.addValidationData(dataValidation);
+            FileOutputStream fileOut = new FileOutputStream("D:\\test.xls");
+            wb.write(fileOut);
+            fileOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testLimits1() throws Exception {
+        try {
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                list.add(UUID.randomUUID().toString());
+            }
+            XSSFWorkbook wb = new XSSFWorkbook();
+            XSSFSheet sheet = wb.createSheet("new sheet");
+            DataValidationHelper validationHelper = new XSSFDataValidationHelper(sheet);
+            DataValidationConstraint constraint = validationHelper.createExplicitListConstraint(list.toArray(new String[list.size()]));
+            CellRangeAddressList addressList = new CellRangeAddressList(0, 0, 0, 0);
+            DataValidation dataValidation = validationHelper.createValidation(constraint, addressList);
+            dataValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+            dataValidation.setSuppressDropDownArrow(true);
+            sheet.addValidationData(dataValidation);
+            FileOutputStream fileOut = new FileOutputStream("D:\\test1.xlsx");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testLimit3() throws Exception {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet realSheet = workbook.createSheet("Sheet xls");
+        HSSFSheet hidden = workbook.createSheet("hidden");
+
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            list.add(UUID.randomUUID().toString());
+            HSSFRow row = hidden.createRow(i);
+            HSSFCell cell = row.createCell(0);
+            cell.setCellValue(UUID.randomUUID().toString());
+        }
+        Name namedCell = workbook.createName();
+        namedCell.setNameName("hidden");
+        namedCell.setRefersToFormula("hidden!$A$1:$A$" + list.size());
+        DVConstraint constraint = DVConstraint.createFormulaListConstraint("hidden");
+        CellRangeAddressList addressList = new CellRangeAddressList(0, 0, 0, 0);
+        HSSFDataValidation validation = new HSSFDataValidation(addressList, constraint);
+        workbook.setSheetHidden(1, true);
+        realSheet.addValidationData(validation);
+        FileOutputStream stream = new FileOutputStream("D:\\range.xls");
+        workbook.write(stream);
+        stream.close();
     }
 
     @Test
