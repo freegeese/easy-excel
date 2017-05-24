@@ -46,13 +46,25 @@ public class ExcelReader {
         return this;
     }
 
+    public ExcelReader filter(ReadFilter filter) {
+        return filter(filter, "0");
+    }
+
     public ExcelReader filter(ReadFilter filter, String switchSheet) {
         clientMapping.addFilter(filter, switchSheet);
         return this;
     }
 
+    public ExcelReader filters(ReadFilter[] filters) {
+        return filters(filters, "0");
+    }
+
     public ExcelReader filters(ReadFilter[] filters, String switchSheet) {
         return filters(Arrays.asList(filters), switchSheet);
+    }
+
+    public ExcelReader filters(Collection<ReadFilter> filters) {
+        return filters(filters, "0");
     }
 
     public ExcelReader filters(Collection<ReadFilter> filters, String switchSheet) {

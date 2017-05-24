@@ -1,6 +1,5 @@
 package com.geese.plugin.excel;
 
-import com.geese.plugin.excel.filter.Filter;
 import com.geese.plugin.excel.filter.WriteFilter;
 import com.geese.plugin.excel.mapping.ClientMapping;
 import com.geese.plugin.excel.mapping.ExcelMapping;
@@ -60,14 +59,30 @@ public class ExcelWriter {
         return this;
     }
 
+    public ExcelWriter addData(List<Map> tableData) {
+        return addData(tableData, "0");
+    }
+
     public ExcelWriter addData(List<Map> tableData, String switchSheet) {
         clientMapping.addTableData(tableData, switchSheet);
         return this;
     }
 
+    public ExcelWriter addData(Map pointData) {
+        return addData(pointData, "0");
+    }
+
     public ExcelWriter addData(Map pointData, String switchSheet) {
         clientMapping.addPointData(pointData, switchSheet);
         return this;
+    }
+
+    public ExcelWriter addValidation(ExcelValidation validation) {
+        return addValidation(validation, "0");
+    }
+
+    public ExcelWriter addValidations(Collection<ExcelValidation> validations) {
+        return addValidations(validations, "0");
     }
 
     public ExcelWriter addValidation(ExcelValidation validation, String switchSheet) {
@@ -80,14 +95,25 @@ public class ExcelWriter {
         return this;
     }
 
+    public ExcelWriter filter(WriteFilter filter) {
+        return filter(filter, "0");
+    }
 
     public ExcelWriter filter(WriteFilter filter, String switchSheet) {
         clientMapping.addFilter(filter, switchSheet);
         return this;
     }
 
+    public ExcelWriter filters(WriteFilter[] filters) {
+        return filters(filters, "0");
+    }
+
     public ExcelWriter filters(WriteFilter[] filters, String switchSheet) {
         return filters(Arrays.asList(filters), switchSheet);
+    }
+
+    public ExcelWriter filters(Collection<WriteFilter> filters) {
+        return filters(filters, "0");
     }
 
     public ExcelWriter filters(Collection<WriteFilter> filters, String switchSheet) {
