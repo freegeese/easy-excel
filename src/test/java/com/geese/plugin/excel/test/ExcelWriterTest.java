@@ -11,9 +11,7 @@ import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddressList;
-import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -142,6 +140,7 @@ public class ExcelWriterTest {
             ExcelWriter.newInstance(excelOutput)
                     .setTemplate(excelTemplate)
                     .addValidation(new ExcelValidation(1, 20, 0, 0, list), "0")
+                    .addValidation(new ExcelValidation(1, 20, 1, 1, list), "0")
                     .execute();
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,6 +215,36 @@ public class ExcelWriterTest {
         workbook.setSheetHidden(1, true);
         realSheet.addValidationData(validation);
         FileOutputStream stream = new FileOutputStream("D:\\range.xls");
+        workbook.write(stream);
+        stream.close();
+    }
+
+    @Test
+    public void testLimit4() throws Exception {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet realSheet = workbook.createSheet("Sheet xls");
+        XSSFSheet hidden = workbook.createSheet("hidden");
+
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            list.add(UUID.randomUUID().toString());
+            XSSFRow row = hidden.createRow(i);
+            XSSFCell cell = row.createCell(0);
+            cell.setCellValue(UUID.randomUUID().toString());
+        }
+        Name namedCell = workbook.createName();
+        namedCell.setNameName("hidden");
+        namedCell.setRefersToFormula("hidden!$A$1:$A$" + list.size());
+
+        DataValidationHelper validationHelper = new XSSFDataValidationHelper(realSheet);
+        DataValidationConstraint constraint = validationHelper.createFormulaListConstraint("hidden");
+        CellRangeAddressList addressList = new CellRangeAddressList(0, 0, 0, 0);
+        DataValidation dataValidation = validationHelper.createValidation(constraint, addressList);
+        dataValidation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+        dataValidation.setSuppressDropDownArrow(true);
+        realSheet.addValidationData(dataValidation);
+
+        FileOutputStream stream = new FileOutputStream("D:\\range1.xlsx");
         workbook.write(stream);
         stream.close();
     }

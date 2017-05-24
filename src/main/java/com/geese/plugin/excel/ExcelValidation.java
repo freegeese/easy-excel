@@ -3,14 +3,16 @@ package com.geese.plugin.excel;
 import org.apache.poi.hssf.usermodel.DVConstraint;
 import org.apache.poi.hssf.usermodel.HSSFDataValidation;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.ss.usermodel.DataValidation;
-import org.apache.poi.ss.usermodel.DataValidationConstraint;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddressList;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFDataValidationHelper;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Created by Administrator on 2017/5/22.
@@ -129,10 +131,46 @@ public class ExcelValidation {
         DataValidation validation = null;
         String[] values = (String[]) constraintValues.toArray(new String[constraintValues.size()]);
 
+        boolean isListValidationType = (null == validationType);
+        String listFormula = null;
+
+        if (isListValidationType) {
+            Workbook wk = sheet.getWorkbook();
+            String hiddenSheetName = "__Hidden_Sheet__";
+            Sheet hiddenSheet = wk.getSheet(hiddenSheetName);
+            if (null == hiddenSheet) {
+                hiddenSheet = wk.createSheet(hiddenSheetName);
+                wk.setSheetHidden(wk.getSheetIndex(hiddenSheet), true);
+            }
+            // 获取没有设置值的单元格
+            Row firstRow = ExcelHelper.createRow(hiddenSheet, 0);
+            Cell cell = null;
+            for (int i = 0; i < 16384; i++) {
+                cell = firstRow.getCell(i);
+                if (null == cell) {
+                    cell = firstRow.createCell(i);
+                    break;
+                }
+            }
+            // 单元格列对应的字母
+            int columnIndex = cell.getColumnIndex();
+            String colAlphabet = CellReference.convertNumToColString(columnIndex);
+            // 设置下拉框的值
+            for (int i = 0; i < values.length; i++) {
+                ExcelHelper.createRow(hiddenSheet, i).createCell(columnIndex).setCellValue(values[i]);
+            }
+            // 给下拉框设置一个名称
+            Name namedCell = wk.createName();
+            listFormula = hiddenSheetName + colAlphabet + "1" + colAlphabet + values.length;
+            namedCell.setNameName(listFormula);
+            namedCell.setRefersToFormula(hiddenSheetName + "!$" + colAlphabet + "$1:$" + colAlphabet + "$" + values.length);
+        }
+
+        // 判断sheet类型，根据sheet类型使用对应的API来创建 Data Validation Constraint
         if (sheet instanceof HSSFSheet) {
             DVConstraint dvConstraint = null;
-            if (null == validationType) {
-                dvConstraint = DVConstraint.createExplicitListConstraint(values);
+            if (isListValidationType) {
+                dvConstraint = DVConstraint.createFormulaListConstraint(listFormula);
             } else {
                 switch (validationType) {
                     case DataValidationConstraint.ValidationType.INTEGER:
@@ -145,8 +183,8 @@ public class ExcelValidation {
         } else {
             XSSFDataValidationHelper dvHelper = new XSSFDataValidationHelper((XSSFSheet) sheet);
             DataValidationConstraint dvConstraint = null;
-            if (null == validationType) {
-                dvConstraint = dvHelper.createExplicitListConstraint(values);
+            if (isListValidationType) {
+                dvConstraint = dvHelper.createFormulaListConstraint(listFormula);
             } else {
                 switch (validationType) {
                     case DataValidationConstraint.ValidationType.INTEGER:
@@ -157,8 +195,9 @@ public class ExcelValidation {
             }
             validation = dvHelper.createValidation(dvConstraint, addressList);
         }
-
+        // 设置下拉箭头
         validation.setSuppressDropDownArrow(suppressDropDownArrow);
+        // 显示错误提示
         validation.setShowErrorBox(showErrorBox);
         sheet.addValidationData(validation);
     }
