@@ -162,7 +162,7 @@ public class ExcelWriter {
         proxy.writeExcel(workbook, excelMapping);
         workbook.write(clientMapping.getExcelOutput());
         ExcelResult excelResult = new ExcelResult();
-        excelResult.setContext(ExcelTemplate.getContext());
+        excelResult.setContext(ExcelContext.get());
         return excelResult;
     }
 }

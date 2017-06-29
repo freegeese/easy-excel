@@ -18,22 +18,6 @@ import java.util.logging.Logger;
 public class ExcelTemplate implements ExcelOperations {
     private final static Logger logger = Logger.getLogger(ExcelTemplate.class.getName());
 
-    // 本地的线程变量
-    private static final ThreadLocal<Map> localContext = new ThreadLocal<Map>() {
-        @Override
-        protected Map initialValue() {
-            return new LinkedHashMap<>();
-        }
-    };
-
-    public static Map getContext() {
-        return localContext.get();
-    }
-
-    public static void setContext(Map context) {
-        localContext.set(context);
-    }
-
     @Override
     public Object readExcel(Workbook workbook, ExcelMapping excelMapping) {
         Assert.notNull(workbook, excelMapping);
@@ -207,7 +191,7 @@ public class ExcelTemplate implements ExcelOperations {
             for (Map rowData : tableData) {
                 Row row = ExcelHelper.createRow(sheet, startRow);
                 ExcelOperationsProxyFactory.getProxy().writeRow(row, sheetMapping, rowData);
-                if (getContext().containsKey(EXCEL_NOT_PASS_FILTERED)) {
+                if (ExcelContext.get().containsKey(EXCEL_NOT_PASS_FILTERED)) {
                     return;
                 }
                 startRow += rowInterval;

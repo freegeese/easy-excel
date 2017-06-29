@@ -84,7 +84,7 @@ public class ExcelReader {
         Map data = (Map) proxy.readExcel(workbook, excelMapping);
         ExcelResult excelResult = new ExcelResult();
         excelResult.setData(data);
-        excelResult.setContext(ExcelTemplate.getContext());
+        excelResult.setContext(ExcelContext.get());
         return excelResult;
     }
 }

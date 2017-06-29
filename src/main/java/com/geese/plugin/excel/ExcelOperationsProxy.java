@@ -41,7 +41,7 @@ public class ExcelOperationsProxy implements InvocationHandler {
                 filterChain = sheetMapping.getExcelMapping().getRowBeforeReadFilterChain(sheetMapping.getName());
             }
             if (null != filterChain && !filterChain.isEmpty()) {
-                if (!filterChain.doFilter(args[0], null, mapping, ExcelTemplate.getContext())) {
+                if (!filterChain.doFilter(args[0], null, mapping, ExcelContext.get())) {
                     return ExcelOperations.EXCEL_NOT_PASS_FILTERED;
                 }
             }
@@ -62,8 +62,8 @@ public class ExcelOperationsProxy implements InvocationHandler {
             }
             // args[2] -> target data
             if (null != filterChain && !filterChain.isEmpty()) {
-                if (!filterChain.doFilter(args[0], args.length == 3 ? args[2] : null, mapping, ExcelTemplate.getContext())) {
-                    ExcelTemplate.getContext().put(ExcelOperations.EXCEL_NOT_PASS_FILTERED, ExcelOperations.EXCEL_NOT_PASS_FILTERED);
+                if (!filterChain.doFilter(args[0], args.length == 3 ? args[2] : null, mapping, ExcelContext.get())) {
+                    ExcelContext.get().put(ExcelOperations.EXCEL_NOT_PASS_FILTERED, ExcelOperations.EXCEL_NOT_PASS_FILTERED);
                     return ExcelOperations.EXCEL_NOT_PASS_FILTERED;
                 }
             }
@@ -103,7 +103,7 @@ public class ExcelOperationsProxy implements InvocationHandler {
                 }
             }
             if (null != filterChain && !filterChain.isEmpty()) {
-                if (!filterChain.doFilter(args[0], returnValue, sheetMapping, ExcelTemplate.getContext())) {
+                if (!filterChain.doFilter(args[0], returnValue, sheetMapping, ExcelContext.get())) {
                     return ExcelOperations.EXCEL_NOT_PASS_FILTERED;
                 }
             }
@@ -131,8 +131,8 @@ public class ExcelOperationsProxy implements InvocationHandler {
             }
             if (null != filterChain && !filterChain.isEmpty()) {
                 // args[2] -> target data
-                if (!filterChain.doFilter(args[0], args.length == 3 ? args[2] : null, sheetMapping, ExcelTemplate.getContext())) {
-                    ExcelTemplate.getContext().put(ExcelOperations.EXCEL_NOT_PASS_FILTERED, ExcelOperations.EXCEL_NOT_PASS_FILTERED);
+                if (!filterChain.doFilter(args[0], args.length == 3 ? args[2] : null, sheetMapping, ExcelContext.get())) {
+                    ExcelContext.get().put(ExcelOperations.EXCEL_NOT_PASS_FILTERED, ExcelOperations.EXCEL_NOT_PASS_FILTERED);
                     return ExcelOperations.EXCEL_NOT_PASS_FILTERED;
                 }
             }

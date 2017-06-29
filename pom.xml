@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.freegeese</groupId>
     <artifactId>easy-excel</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
     <name>Easy Excel</name>
     <url>https://github.com/freegeese/easy-excel</url>

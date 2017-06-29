@@ -1,5 +1,7 @@
 package com.geese.plugin.excel.test;
 
+import com.geese.plugin.excel.ExcelContext;
+import com.geese.plugin.excel.ExcelTemplate;
 import com.geese.plugin.excel.mapping.CellMapping;
 
 import java.util.LinkedHashMap;
@@ -10,33 +12,29 @@ import java.util.Map;
  */
 public class TheadLocalTest {
 
-    public static class MyRunnable implements Runnable {
-        private ThreadLocal threadLocal = new ThreadLocal() {
-            @Override
-            protected Object initialValue() {
-                return new CellMapping();
-            }
-        };
 
-        @Override
-        public void run() {
-            System.out.println(threadLocal.get());;
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println(threadLocal.get());
+    public static void main(String[] args) throws InterruptedException {
+        final Service service = new Service();
+        for (int i = 0; i < 5; i++) {
+            new Thread() {
+                @Override
+                public void run() {
+                    service.doService();
+                }
+            }.start();
         }
+        Thread.sleep(1000L);
+        System.out.println(ExcelContext.get());
     }
 
-    public static void main(String[] args) {
-        MyRunnable sharedRunnable = new MyRunnable();
-        Thread thread1 = new Thread(sharedRunnable);
-        Thread thread2 = new Thread(sharedRunnable);
-        thread1.start();
-        thread2.start();
-    }
+    public static class Service {
+        public synchronized void doService() {
+            Map map = ExcelContext.get();
+            System.out.println(map.get("a"));
+            map.put("a", Thread.currentThread().getName() + Math.random() * 1000);
+            System.out.println(ExcelContext.get().get("a"));
+        }
 
+    }
 
 }
